@@ -1,0 +1,6 @@
+x86_64-unknown-elf/
+crosstool-ng/
+isofiles/
+iso.img
+*.o
+*.elf

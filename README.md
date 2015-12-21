@@ -22,7 +22,6 @@ cd baremetal-x86_64
 ```
 
 Create crosstool chain using crosstool-ng. Modified as desired
-TBD: instructions for compiling gdb
 ---
  - ct-ng will be in /home/wink/opt/bin (Change and besure its on $PATH)
  - x86_64-unknown-elf-xxx tools be in ~/x-tools/x86_64-unkown-elf/bin

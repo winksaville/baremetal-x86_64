@@ -139,12 +139,6 @@ CT_ARCH_USE_MMU=y
 # Target optimisations
 #
 CT_ARCH_FLOAT=""
-# CT_ARCH_ALPHA_EV4 is not set
-# CT_ARCH_ALPHA_EV45 is not set
-# CT_ARCH_ALPHA_EV5 is not set
-# CT_ARCH_ALPHA_EV56 is not set
-# CT_ARCH_ALPHA_EV6 is not set
-# CT_ARCH_ALPHA_EV67 is not set
 
 #
 # Toolchain options
@@ -380,11 +374,73 @@ CT_CC_SUPPORT_GOLANG=y
 #
 # Debug facilities
 #
-# CT_DEBUG_dmalloc is not set
-# CT_DEBUG_duma is not set
-# CT_DEBUG_gdb is not set
-# CT_DEBUG_ltrace is not set
-# CT_DEBUG_strace is not set
+CT_DEBUG_dmalloc=y
+CT_DMALLOC_V_5_5_2=y
+CT_DMALLOC_VERSION="5.5.2"
+CT_DEBUG_duma=y
+CT_DUMA_A=y
+# CT_DUMA_SO is not set
+CT_DUMA_V_2_5_15=y
+CT_DUMA_VERSION="2_5_15"
+CT_DEBUG_gdb=y
+CT_GDB_CROSS=y
+# CT_GDB_CROSS_STATIC is not set
+# CT_GDB_CROSS_SIM is not set
+CT_GDB_CROSS_PYTHON=y
+CT_GDB_CROSS_EXTRA_CONFIG_ARRAY=""
+
+#
+# In bare-metal, you'll need to   
+#
+
+#
+# provide your own gdbserver stub.
+#
+
+#
+# gdb version
+#
+CT_GDB_VERSION="7.10"
+# CT_DEBUG_GDB_SHOW_LINARO is not set
+CT_GDB_V_7_10=y
+# CT_GDB_V_7_9_1 is not set
+# CT_GDB_V_7_9 is not set
+# CT_GDB_V_7_8_2 is not set
+# CT_GDB_V_7_8_1 is not set
+# CT_GDB_V_7_8 is not set
+# CT_GDB_V_7_7_1 is not set
+# CT_GDB_V_7_7 is not set
+# CT_GDB_V_7_6_1 is not set
+# CT_GDB_V_7_5_1 is not set
+# CT_GDB_V_7_4_1 is not set
+# CT_GDB_V_7_4 is not set
+# CT_GDB_V_7_3_1 is not set
+# CT_GDB_V_7_3a is not set
+# CT_GDB_V_7_2a is not set
+# CT_GDB_V_7_1a is not set
+# CT_GDB_V_7_0_1a is not set
+# CT_GDB_V_7_0a is not set
+# CT_GDB_V_6_8a is not set
+CT_GDB_7_2_or_later=y
+CT_GDB_7_0_or_later=y
+CT_GDB_HAS_PKGVERSION_BUGURL=y
+CT_GDB_HAS_PYTHON=y
+CT_GDB_INSTALL_GDBINIT=y
+CT_DEBUG_ltrace=y
+CT_LTRACE_V_0_7_3=y
+# CT_LTRACE_V_0_5_3 is not set
+# CT_LTRACE_V_0_5_2 is not set
+CT_LTRACE_VERSION="0.7.3"
+CT_DEBUG_strace=y
+CT_STRACE_V_4_10=y
+# CT_STRACE_V_4_9 is not set
+# CT_STRACE_V_4_8 is not set
+# CT_STRACE_V_4_7 is not set
+# CT_STRACE_V_4_6 is not set
+# CT_STRACE_V_4_5_20 is not set
+# CT_STRACE_V_4_5_19 is not set
+# CT_STRACE_V_4_5_18 is not set
+CT_STRACE_VERSION="4.10"
 
 #
 # Companion libraries
@@ -395,12 +451,17 @@ CT_MPFR_NEEDED=y
 CT_ISL_NEEDED=y
 CT_MPC_NEEDED=y
 CT_LIBELF_NEEDED=y
+CT_EXPAT_NEEDED=y
+CT_NCURSES_NEEDED=y
 CT_COMPLIBS=y
 CT_GMP=y
 CT_MPFR=y
 CT_ISL=y
 CT_MPC=y
 CT_LIBELF=y
+CT_LIBELF_TARGET=y
+CT_EXPAT=y
+CT_NCURSES=y
 CT_GMP_V_6_0_0=y
 # CT_GMP_V_5_1_3 is not set
 # CT_GMP_V_5_1_1 is not set
@@ -437,6 +498,10 @@ CT_MPC_VERSION="1.0.3"
 CT_LIBELF_V_0_8_13=y
 # CT_LIBELF_V_0_8_12 is not set
 CT_LIBELF_VERSION="0.8.13"
+CT_EXPAT_V_2_1_0=y
+CT_EXPAT_VERSION="2.1.0"
+CT_NCURSES_V_6_0=y
+CT_NCURSES_VERSION="6.0"
 
 #
 # Companion libraries common options

@@ -40,6 +40,7 @@ _start:
     mov ds, ax
     mov es, ax
 
+    ; edi = multiboot info
     jmp gdt64.code:kmain
 
 set_up_page_tables:

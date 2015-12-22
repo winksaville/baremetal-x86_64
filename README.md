@@ -21,21 +21,25 @@ git clone https://github.com/winksaville/baremetal-x86_64.git
 cd baremetal-x86_64
 ```
 
-Create crosstool chain using crosstool-ng. Modified as desired
+Create crosstool chain using crosstool-ng.
 ---
- - ct-ng will be in /home/wink/opt/bin (Change and besure its on $PATH)
- - x86_64-unknown-elf-xxx tools be in ~/x-tools/x86_64-unkown-elf/bin
+Modified as desired, config.x86_64-pc-elf builds a static
+cross tool chain with no libc for baremetal. Prior to running
+the commands below you'll want to add the following to
+your $PATH:
+ - $HOME/opt/bin
+ - $HOME/x-tools/x86_64-pc-elf/bin
 ```
 git clone https://github.com/crosstool-ng/crosstool-ng
 cd crosstool-ng
 ./bootstrap
-./configure --prefix=/home/wink/opt
+./configure --prefix=$HOME/opt
 make
 make install
 cd ..
-mkdir -p x86_64-unknown-elf
-cd x86_64-unknown-elf
-cp ../config.x86_64-unknown-elf .config
+mkdir -p x86_64-pc-elf
+cd x86_64-pc-elf
+cp ../config.x86_64-pc-elf .config
 ct-ng build
 cd ..
 ```

@@ -19,8 +19,8 @@ CC_FLAVOR ?= x86_64
 LK_FLAVOR ?= x86_64
 BITNESS ?= 64
 
-CC=$(CC_FLAVOR)-unknown-elf-gcc
-LK=$(LK_FLAVOR)-unknown-elf-gcc
+CC=$(CC_FLAVOR)-pc-elf-gcc
+LK=$(LK_FLAVOR)-pc-elf-gcc
 
 CFLAGS:=-m$(BITNESS) -std=c11 -ffreestanding -O2 -g -static -Wall -Wextra -nostdlib -nostartfiles -nodefaultlibs
 

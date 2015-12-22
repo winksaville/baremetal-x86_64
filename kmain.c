@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#define UNUSED(x) (void)x
+
 // From [here](//http://www.lammertbies.nl/comm/info/RS-232_io.html)
 #define COM1_BASE 0x3F8
 #define COM2_BASE 0x2F8
@@ -35,10 +37,9 @@ static inline void outb(short int port, char val) {
     __asm volatile ( "outb %0, %1" : : "a"(val), "d"(port) );
 }
 
-int kmain(void) {
+void kmain(void *mb_info) {
+  UNUSED(mb_info);
   outb(COM_TX_FIFO, 'O');
   outb(COM_TX_FIFO, 'K');
   outb(COM_TX_FIFO, '\n');
-
-  return 0;
 }

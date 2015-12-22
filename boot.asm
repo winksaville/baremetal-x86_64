@@ -12,12 +12,12 @@
 ; See the License for the specific language governing permissions and
 ; limitations under the License.
 
-global start
-extern long_mode_start
+global _start
+extern kmain
 
 section .text
 bits 32
-start:
+_start:
     mov esp, stack_top
     ; Move Multiboot info pointer to edi to pass it to the kernel. We must not
     ; modify the `edi` register until the kernel it called.
@@ -40,7 +40,7 @@ start:
     mov ds, ax
     mov es, ax
 
-    jmp gdt64.code:long_mode_start
+    jmp gdt64.code:kmain
 
 set_up_page_tables:
     ; recursive map P4

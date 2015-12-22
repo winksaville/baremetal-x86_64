@@ -19,6 +19,7 @@ CC_FLAVOR ?= x86_64
 LK_FLAVOR ?= x86_64
 BITNESS ?= 64
 
+NASM=nasm
 CC=$(CC_FLAVOR)-pc-elf-gcc
 LK=$(LK_FLAVOR)-pc-elf-gcc
 
@@ -27,12 +28,15 @@ CFLAGS:=-m$(BITNESS) -std=c11 -ffreestanding -O2 -g -static -Wall -Wextra -nostd
 kmain.elf: mb2.o boot.o kmain.o link.ld
 	$(LK) $(CFLAGS) -Wl,-n,-T,link.ld -o $@ mb2.o boot.o kmain.o -lgcc
 
+%.o: %.asm
+	$(NASM) -felf64 $< -o $@
+
 %.o: %.S
 	$(CC) $(CFLAGS) -c $< -o $@
 
 mb2.o: mb2.S
 
-boot.o: boot.S
+boot.o: boot.asm
 
 kmain.o: kmain.c
 	$(CC) $(CFLAGS) -c kmain.c -o kmain.o

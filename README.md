@@ -30,7 +30,7 @@ cross tool chain with no libc for baremetal. Prior to running
 the commands below you'll want to add the following to
 your $PATH:
  - $HOME/opt/bin
- - $HOME/x-tools/x86_64-pc-elf/bin
+ - $HOME/opt/x-tools/x86_64-unknown-elf/bin
 ```
 git clone https://github.com/crosstool-ng/crosstool-ng
 cd crosstool-ng
@@ -41,7 +41,7 @@ make install
 cd ..
 mkdir -p x86_64-pc-elf
 cd x86_64-pc-elf
-cp ../config.x86_64-pc-elf .config
+cp ../config.x86_64-unknown-elf .config
 ct-ng build
 cd ..
 ```

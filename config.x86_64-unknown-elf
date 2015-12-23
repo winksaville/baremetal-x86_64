@@ -13,21 +13,23 @@ CT_MODULES=y
 # crosstool-NG behavior
 #
 # CT_OBSOLETE is not set
-# CT_EXPERIMENTAL is not set
+CT_EXPERIMENTAL=y
+# CT_ALLOW_BUILD_AS_ROOT is not set
 # CT_DEBUG_CT is not set
 
 #
 # Paths
 #
 CT_LOCAL_TARBALLS_DIR=""
-CT_WORK_DIR="${CT_TOP_DIR}/.build"
-CT_PREFIX_DIR="${HOME}/x-tools/${CT_TARGET}"
+CT_CUSTOM_LOCATION_ROOT_DIR=""
+CT_WORK_DIR="${HOME}/tmp/x-tools/${CT_TARGET}"
+CT_PREFIX_DIR="${HOME}/opt/x-tools/${CT_TARGET}"
 CT_INSTALL_DIR="${CT_PREFIX_DIR}"
 CT_RM_RF_PREFIX_DIR=y
 CT_REMOVE_DOCS=y
-CT_INSTALL_DIR_RO=y
+# CT_INSTALL_DIR_RO is not set
 CT_STRIP_HOST_TOOLCHAIN_EXECUTABLES=y
-# CT_STRIP_TARGET_TOOLCHAIN_EXECUTABLES is not set
+CT_STRIP_TARGET_TOOLCHAIN_EXECUTABLES=y
 
 #
 # Downloading
@@ -106,6 +108,7 @@ CT_TARGET_LDFLAGS=""
 # CT_ARCH_arm is not set
 # CT_ARCH_avr is not set
 # CT_ARCH_m68k is not set
+# CT_ARCH_microblaze is not set
 # CT_ARCH_mips is not set
 # CT_ARCH_nios2 is not set
 # CT_ARCH_powerpc is not set
@@ -159,14 +162,16 @@ CT_TOOLCHAIN_BUGURL=""
 #
 # Tuple completion and aliasing
 #
-CT_TARGET_VENDOR=""
+CT_TARGET_VENDOR="unknown"
 CT_TARGET_ALIAS_SED_EXPR=""
 CT_TARGET_ALIAS=""
 
 #
 # Toolchain type
 #
+# CT_NATIVE is not set
 CT_CROSS=y
+# CT_CROSS_NATIVE is not set
 # CT_CANADIAN is not set
 CT_TOOLCHAIN_TYPE="cross"
 
@@ -189,6 +194,7 @@ CT_BARE_METAL=y
 CT_KERNEL="bare-metal"
 CT_KERNEL_bare_metal=y
 # CT_KERNEL_linux is not set
+# CT_KERNEL_windows is not set
 CT_KERNEL_bare_metal_AVAILABLE=y
 CT_KERNEL_linux_AVAILABLE=y
 CT_KERNEL_windows_AVAILABLE=y
@@ -207,7 +213,6 @@ CT_BINUTILS_binutils=y
 #
 # GNU binutils
 #
-CT_BINUTILS_VERSION="2.25.1"
 # CT_CC_BINUTILS_SHOW_LINARO is not set
 CT_BINUTILS_V_2_25_1=y
 # CT_BINUTILS_V_2_25 is not set
@@ -220,6 +225,8 @@ CT_BINUTILS_V_2_25_1=y
 # CT_BINUTILS_V_2_20_1a is not set
 # CT_BINUTILS_V_2_19_1a is not set
 # CT_BINUTILS_V_2_18a is not set
+# CT_BINUTILS_CUSTOM is not set
+CT_BINUTILS_VERSION="2.25.1"
 CT_BINUTILS_2_25_1_or_later=y
 CT_BINUTILS_2_25_or_later=y
 CT_BINUTILS_2_24_or_later=y
@@ -235,9 +242,6 @@ CT_BINUTILS_GOLD_SUPPORTS_ARCH=y
 CT_BINUTILS_HAS_PLUGINS=y
 CT_BINUTILS_HAS_PKGVERSION_BUGURL=y
 CT_BINUTILS_LINKER_LD=y
-# CT_BINUTILS_LINKER_GOLD is not set
-# CT_BINUTILS_LINKER_LD_GOLD is not set
-# CT_BINUTILS_LINKER_GOLD_LD is not set
 CT_BINUTILS_LINKERS_LIST="ld"
 CT_BINUTILS_LINKER_DEFAULT="bfd"
 CT_BINUTILS_EXTRA_CONFIG_ARRAY=""
@@ -258,27 +262,31 @@ CT_THREADS="none"
 CT_LIBC_mingw_AVAILABLE=y
 CT_LIBC_musl_AVAILABLE=y
 CT_LIBC_newlib_AVAILABLE=y
-# CT_LIBC_NEWLIB_V_2_2_0 is not set
-# CT_LIBC_NEWLIB_V_2_1_0 is not set
-# CT_LIBC_NEWLIB_V_2_0_0 is not set
-# CT_LIBC_NEWLIB_V_1_20_0 is not set
-# CT_LIBC_NEWLIB_V_1_19_0 is not set
-# CT_LIBC_NEWLIB_V_1_18_0 is not set
-# CT_LIBC_NEWLIB_V_1_17_0 is not set
 CT_LIBC_none_AVAILABLE=y
 CT_LIBC_uClibc_AVAILABLE=y
-# CT_THREADS_NONE is not set
 
 #
 # C compiler
 #
 CT_CC="gcc"
 CT_CC_gcc=y
-CT_CC_GCC_VERSION="5.2.0"
 # CT_CC_GCC_SHOW_LINARO is not set
 CT_CC_GCC_V_5_2_0=y
 # CT_CC_GCC_V_4_9_3 is not set
 # CT_CC_GCC_V_4_8_5 is not set
+# CT_CC_GCC_V_4_7_4 is not set
+# CT_CC_GCC_V_4_6_4 is not set
+# CT_CC_GCC_V_4_5_4 is not set
+# CT_CC_GCC_V_4_4_7 is not set
+# CT_CC_GCC_V_4_3_6 is not set
+# CT_CC_GCC_V_4_2_4 is not set
+# CT_CC_GCC_CUSTOM is not set
+CT_CC_GCC_4_2_or_later=y
+CT_CC_GCC_4_3_or_later=y
+CT_CC_GCC_4_4_or_later=y
+CT_CC_GCC_4_5_or_later=y
+CT_CC_GCC_4_6_or_later=y
+CT_CC_GCC_4_7_or_later=y
 CT_CC_GCC_4_8_or_later=y
 CT_CC_GCC_4_9_or_later=y
 CT_CC_GCC_5=y
@@ -292,9 +300,9 @@ CT_CC_GCC_HAS_BUILD_ID=y
 CT_CC_GCC_HAS_LNK_HASH_STYLE=y
 CT_CC_GCC_USE_GMP_MPFR=y
 CT_CC_GCC_USE_MPC=y
-CT_CC_GCC_USE_LIBELF=y
 CT_CC_GCC_HAS_LIBQUADMATH=y
 CT_CC_GCC_HAS_LIBSANITIZER=y
+CT_CC_GCC_VERSION="5.2.0"
 # CT_CC_LANG_FORTRAN is not set
 CT_CC_GCC_ENABLE_CXX_FLAGS=""
 CT_CC_GCC_EXTRA_CONFIG_ARRAY=""
@@ -343,6 +351,7 @@ CT_CC_SUPPORT_GOLANG=y
 # Additional supported languages:
 #
 # CT_CC_LANG_CXX is not set
+CT_CC_LANG_OTHERS=""
 
 #
 # Debug facilities
@@ -361,13 +370,11 @@ CT_GMP_NEEDED=y
 CT_MPFR_NEEDED=y
 CT_ISL_NEEDED=y
 CT_MPC_NEEDED=y
-CT_LIBELF_NEEDED=y
 CT_COMPLIBS=y
 CT_GMP=y
 CT_MPFR=y
 CT_ISL=y
 CT_MPC=y
-CT_LIBELF=y
 CT_GMP_V_6_0_0=y
 # CT_GMP_V_5_1_3 is not set
 # CT_GMP_V_5_1_1 is not set
@@ -401,9 +408,6 @@ CT_MPC_V_1_0_3=y
 # CT_MPC_V_0_8_1 is not set
 # CT_MPC_V_0_7 is not set
 CT_MPC_VERSION="1.0.3"
-CT_LIBELF_V_0_8_13=y
-# CT_LIBELF_V_0_8_12 is not set
-CT_LIBELF_VERSION="0.8.13"
 
 #
 # Companion libraries common options
@@ -418,3 +422,8 @@ CT_COMPLIBS_CHECK=y
 # READ HELP before you say 'Y' below !!!
 #
 # CT_COMP_TOOLS is not set
+
+#
+# Test suite
+#
+# CT_TEST_SUITE_GCC is not set

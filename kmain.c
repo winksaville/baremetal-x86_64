@@ -145,6 +145,17 @@ multiboot_header_tag* print_tag(multiboot_header_tag *tag) {
   return (multiboot_header_tag*)next;
 }
 
+// [Multiboot 1.6](http://nongnu.askapache.com/grub/phcoder/multiboot.pdf) info.
+// [OSDev.org Mulitboot2](http://wiki.osdev.org/Multiboot#Multiboot_2) info.
+//
+// The other critical information is what is the memory map at this point,
+// [see Philipp's](http://os.phil-opp.com/entering-longmode.html) post. He
+// initializes an identity mapping (1:1 physical to virtual) with one P4,
+// one P3 and one P2. With each P2 entry pointing to 2MB of physical data.
+// So the first 1G of physical RAM is mapped 1:1 with virtual memory.
+//
+// Previously he used 1GB pages there they are only supported in newer
+// cpu's so he's nowusing the 2MB pages.
 void kmain(void* mb_info) {
   u32 total_size = *(u32*)mb_info;
   u32 reserved = *(u32*)(mb_info + 4);

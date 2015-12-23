@@ -1,11 +1,13 @@
 # baremetal-x86_64
 
 A a minimal bare metal program that runs on qemu-system-x86_64
-it outputs "OK\n" to a COM1 at 0x3f8. This is based on Philip
+it outputs "OK\n" to a COM1 at 0x3f8. This is based on Philipp
 Opperman's blog_os initialization code I've ported to [baremetal-po-x86_64]
 (https://github.com/winksaville/baremetal-po-x86_64).
-
 The big difference is I'm porting as much as possible to C.
+
+Philipp also references Remzi H. and Andrea C. Arpaci-Dusseau book
+[Operating Systems:Three Easy Pieces](http://pages.cs.wisc.edu/~remzi/OSTEP/)
 
 License
 ---

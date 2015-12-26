@@ -194,7 +194,7 @@ gdt64_zero_entry:
 
 gdt64_code_entry:
   .set gdt64_code_seg, gdt64_code_entry - gdt64_zero_entry
-  .quad (1<<44) | (1<<47) | (1<<41) | (1<<43) | (1<<53) + kmain // code segment
+  .quad (1<<44) | (1<<47) | (1<<41) | (1<<43) | (1<<53) // code segment
 
 gdt64_data_entry:
   .set gdt64_data_seg, gdt64_data_entry - gdt64_zero_entry

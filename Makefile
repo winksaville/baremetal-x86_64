@@ -25,16 +25,28 @@ LK=$(LK_FLAVOR)-elf-gcc
 
 CFLAGS:=-m$(BITNESS) -std=c11 -ffreestanding -O2 -g -static -Wall -Wextra -nostdlib -nostartfiles -nodefaultlibs
 
+.PHONY: all
+all: kmain.elf kmain.gas.elf
+
 kmain.elf: mb2.o boot.o kmain.o link.ld
 	$(LK) $(CFLAGS) -Wl,-n,-T,link.ld -o $@ mb2.o boot.o kmain.o -lgcc
+	objdump -d -mi386 $@ > $@.txt
+
+kmain.gas.elf: mb2.o boot.gas.o kmain.o link.ld
+	$(LK) $(CFLAGS) -Wl,-n,-T,link.ld -o $@ mb2.o boot.gas.o kmain.o -lgcc
+	objdump -d -mi386 $@ > $@.txt
 
 %.o: %.asm
 	$(NASM) -felf64 $< -o $@
+	objdump -d -mi386 $@ > $@.txt
 
 %.o: %.S
 	$(CC) $(CFLAGS) -c $< -o $@
+	objdump -d -mi386 $@ > $@.txt
 
 mb2.o: mb2.S
+
+bootgas.o: bootgas.S
 
 boot.o: boot.asm
 
@@ -47,6 +59,16 @@ iso.img: kmain.elf grub.cfg
 	cp grub.cfg isofiles/boot/grub
 	grub-mkrescue -o $@ isofiles 2> /dev/null
 
+iso.gas.img: kmain.gas.elf grub.cfg
+	mkdir -p isofiles/boot/grub
+	cp kmain.gas.elf isofiles/boot/
+	cp grub.cfg isofiles/boot/grub
+	grub-mkrescue -o $@ isofiles 2> /dev/null
+
+.PHONY: run.gas
+run.gas: iso.gas.img
+	qemu-system-x86_64 -nographic -no-reboot -drive format=raw,file=$<
+
 .PHONY: run
 run: iso.img
 	qemu-system-x86_64 -nographic -no-reboot -drive format=raw,file=$<
@@ -58,6 +80,18 @@ run: iso.img
 dbg: iso.img
 	qemu-system-x86_64 -s -S -nographic -no-reboot -drive format=raw,file=$<
 
+.PHONY: dbg.gas
+dbg.gas: iso.gas.img
+	qemu-system-x86_64 -s -S -nographic -no-reboot -drive format=raw,file=$<
+
 .PHONY: clean
 clean:
-	rm -rf mb2.o boot.o kmain.o kmain.elf iso.img isofiles
+	rm -rf boot.gas.o boot.gas.o.txt
+	rm -rf boot.o boot.o.txt
+	rm -rf mb2.o mb2.o.txt
+	rm -rf kmain.o
+	rm -rf kmain.elf kmain.elf.txt
+	rm -rf kmain.gas.elf kmain.gas.elf.txt
+	rm -rf iso.gas.img
+	rm -rf iso.img
+	rm -rf isofiles

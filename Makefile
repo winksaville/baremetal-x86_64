@@ -20,8 +20,8 @@ LK_FLAVOR ?= x86_64
 BITNESS ?= 64
 
 NASM=nasm
-CC=$(CC_FLAVOR)-pc-elf-gcc
-LK=$(LK_FLAVOR)-pc-elf-gcc
+CC=$(CC_FLAVOR)-elf-gcc
+LK=$(LK_FLAVOR)-elf-gcc
 
 CFLAGS:=-m$(BITNESS) -std=c11 -ffreestanding -O2 -g -static -Wall -Wextra -nostdlib -nostartfiles -nodefaultlibs
 

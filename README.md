@@ -39,8 +39,8 @@ cd crosstool-ng
 make
 make install
 cd ..
-mkdir -p x86_64-pc-elf
-cd x86_64-pc-elf
+mkdir -p x86_64-elf
+cd x86_64-elf
 cp ../config.x86_64-unknown-elf .config
 ct-ng build
 cd ..

@@ -61,7 +61,7 @@ set_up_page_tables:
 
     ; map each P2 entry to a huge 2MiB page
     mov ecx, 0 ; counter variable
-.map_p2_table:
+map_p2_table:
     ; map ecx-th P2 entry to a huge page that starts at address (2MiB * ecx)
     mov eax, 0x200000  ; 2MiB
     mul ecx            ; start address of ecx-th page
@@ -70,7 +70,7 @@ set_up_page_tables:
 
     inc ecx            ; increase counter
     cmp ecx, 512       ; if counter == 512, the whole P2 table is mapped
-    jne .map_p2_table  ; else map the next entry
+    jne map_p2_table   ; else map the next entry
 
     ret
 
@@ -109,9 +109,9 @@ error:
 ; Throw error 0 if eax doesn't contain the Multiboot 2 magic value (0x36d76289).
 check_multiboot:
     cmp eax, 0x36d76289
-    jne .no_multiboot
+    jne no_multiboot
     ret
-.no_multiboot:
+no_multiboot:
     mov al, "0"
     jmp error
 
@@ -128,9 +128,9 @@ check_cpuid:
     push ecx             ; Store the C-register.
     popfd                ; Restore the FLAGS-register.
     xor eax, ecx         ; Do a XOR-operation on the A-register and the C-register.
-    jz .no_cpuid         ; The zero flag is set, no CPUID.
+    jz no_cpuid          ; The zero flag is set, no CPUID.
     ret                  ; CPUID is available for use.
-.no_cpuid:
+no_cpuid:
     mov al, "1"
     jmp error
 
@@ -139,13 +139,13 @@ check_long_mode:
     mov eax, 0x80000000    ; Set the A-register to 0x80000000.
     cpuid                  ; CPU identification.
     cmp eax, 0x80000001    ; Compare the A-register with 0x80000001.
-    jb .no_long_mode       ; It is less, there is no long mode.
+    jb no_long_mode        ; It is less, there is no long mode.
     mov eax, 0x80000001    ; Set the A-register to 0x80000001.
     cpuid                  ; CPU identification.
     test edx, 1 << 29      ; Test if the LM-bit, which is bit 29, is set in the D-register.
-    jz .no_long_mode       ; They aren't, there is no long mode.
+    jz no_long_mode        ; They aren't, there is no long mode.
     ret
-.no_long_mode:
+no_long_mode:
     mov al, "2"
     jmp error
 
@@ -155,7 +155,7 @@ set_up_SSE:
     mov eax, 0x1
     cpuid
     test edx, 1<<25
-    jz .no_SSE
+    jz no_SSE
 
     ; enable SSE
     mov eax, cr0
@@ -167,7 +167,7 @@ set_up_SSE:
     mov cr4, eax
 
     ret
-.no_SSE:
+no_SSE:
     mov al, "a"
     jmp error
 

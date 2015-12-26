@@ -106,7 +106,7 @@ enable_paging:
 // parameter: error code (in ascii) in al
 error:
     movl $0x4f524f45, (0xb8000)
-    movl $0x4f3a4f52, (0xb0004)
+    movl $0x4f3a4f52, (0xb8004)
     movl $0x4f204f20, (0xb8008)
     movb %al, (0xb800a)
     hlt
@@ -189,6 +189,7 @@ stack_bottom:
 stack_top:
 
   .section .rodata
+  .align 4
 gdt64_zero_entry:
   .quad 0 // zero entry
 
@@ -201,6 +202,6 @@ gdt64_data_entry:
   .quad (1<<44) | (1<<47) | (1<<41) // data segment
 
 gdt64_pointer_entry:
-  .set gdt64_pointer_seg, gdt64_data_entry - gdt64_pointer_entry - 1
+  .set gdt64_pointer_seg, gdt64_pointer_entry - gdt64_zero_entry - 1
   .word gdt64_pointer_seg
   .quad gdt64_zero_entry

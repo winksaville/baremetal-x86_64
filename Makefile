@@ -23,7 +23,19 @@ NASM=nasm
 CC=$(CC_FLAVOR)-elf-gcc
 LK=$(LK_FLAVOR)-elf-gcc
 
-CFLAGS:=-m$(BITNESS) -std=c11 -ffreestanding -O2 -static -Wall -Wextra -nostdlib -nostartfiles -nodefaultlibs
+# See [System V ABI at OSDev.org](http://wiki.osdev.org/System_V_ABI) it says:
+#
+# "The solution is to build all kernel code with -mno-red-zone or by handling
+# interrupts in kernel mode on another stack"
+#
+# Here I'm choosing to use -mno-red-zone.
+# Other info at OSDev.org you do a
+# [site search](https://www.google.com/search?q=site%3Aosdev.org%20%22red%20zone%22&rct=j)
+# Another good article from
+# [Eric Kidd](http://www.randomhacks.net/2015/11/11/bare-metal-rust-custom-target-kernel-space/)
+# Eric also notes that Floating Point registers must be preserved properly
+# for now its assumed that there is no floating.
+CFLAGS:=-m$(BITNESS) -std=c11 -ffreestanding -O2 -mno-red-zone -static -Wall -Wextra -nostdlib -nostartfiles -nodefaultlibs
 
 .PHONY: all
 all: kmain.elf kmain.gas.elf

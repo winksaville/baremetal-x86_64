@@ -63,7 +63,7 @@ iso.img: kmain.elf grub.cfg
 iso.gas.img: kmain.gas.elf grub.gas.cfg
 	mkdir -p isofiles.gas/boot/grub
 	cp kmain.gas.elf isofiles.gas/boot/
-	cp grub.gas.cfg isofiles.gas/boot/grub
+	cp grub.gas.cfg isofiles.gas/boot/grub/grub.cfg
 	grub-mkrescue -o $@ isofiles.gas 2> /dev/null
 
 .PHONY: run.gas

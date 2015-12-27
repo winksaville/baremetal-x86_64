@@ -38,11 +38,9 @@ kmain.gas.elf: mb2.o boot.gas.o kmain.o link.ld
 
 %.o: %.asm
 	$(NASM) -felf64 $< -o $@
-	objdump -x -d -s -mi386 $@ > $@.txt
 
 %.o: %.S
 	$(CC) $(CFLAGS) -c $< -o $@
-	objdump -x -d -s -mi386 $@ > $@.txt
 
 mb2.o: mb2.S
 
@@ -52,7 +50,6 @@ boot.o: boot.asm
 
 kmain.o: kmain.c
 	$(CC) $(CFLAGS) -c kmain.c -o kmain.o
-	objdump -x -d -s -mi386 $@ > $@.txt
 
 iso.img: kmain.elf grub.cfg
 	mkdir -p isofiles/boot/grub

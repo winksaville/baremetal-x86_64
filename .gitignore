@@ -4,5 +4,7 @@ isofiles/
 isofiles.gas/
 iso.img
 iso.gas.img
+kmain.elf.txt
+kmain.gas.elf.txt
 *.o
 *.elf

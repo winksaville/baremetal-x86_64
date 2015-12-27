@@ -43,9 +43,13 @@ _start:
     movw %ax, %es
 
     // edi = multiboot info
-    //ljmp gdt64_code_seg, kmain
-    .byte 0xea
-    .long kmain
+
+    // TODO: Figure out how to translate the
+    //       long jumo to kmain to gas assembler.
+    //       I manually generated to code since
+    //jmp gdt64.code:kmain
+    .byte 0xea    // Manually generated
+    .long kmain   //   ljmp to gdt.code:main
     .word 0x08
 
 set_up_page_tables:

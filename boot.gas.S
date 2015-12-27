@@ -14,6 +14,27 @@
  * limitations under the License.
  */
 
+  // Global Descriptor Table
+  .section .rodata
+  .align 4
+gdt64_zero_entry:
+  .quad 0 // zero entry
+
+gdt64_code_entry:
+  .set gdt64_code_seg, gdt64_code_entry - gdt64_zero_entry
+  .quad (1<<44) | (1<<47) | (1<<41) | (1<<43) | (1<<53) // code segment
+
+gdt64_data_entry:
+  .set gdt64_data_seg, gdt64_data_entry - gdt64_zero_entry
+  .quad (1<<44) | (1<<47) | (1<<41) // data segment
+
+gdt64_pointer_entry:
+  .set gdt64_pointer_seg, gdt64_pointer_entry - gdt64_zero_entry - 1
+  .word gdt64_pointer_seg
+  .quad gdt64_zero_entry
+
+
+  // Entry code
   .global _start
   .extern kmain
 
@@ -43,14 +64,7 @@ _start:
     movw %ax, %es
 
     // edi = multiboot info
-
-    // TODO: Figure out how to translate the
-    //       long jumo to kmain to gas assembler.
-    //       I manually generated to code since
-    //jmp gdt64.code:kmain
-    .byte 0xea    // Manually generated
-    .long kmain   //   ljmp to gdt.code:main
-    .word 0x08
+    ljmp  $gdt64_code_seg, $kmain
 
 set_up_page_tables:
     // recursive map P4
@@ -180,6 +194,7 @@ no_SSE:
     movb $'a', %al
     jmp error
 
+  // Uninitialized data section contain the page tables and stack
   .section .bss
   .align 4096
 p4_table:
@@ -192,20 +207,3 @@ stack_bottom:
     .skip 4096 * 2
 stack_top:
 
-  .section .rodata
-  .align 4
-gdt64_zero_entry:
-  .quad 0 // zero entry
-
-gdt64_code_entry:
-  .set gdt64_code_seg, gdt64_code_entry - gdt64_zero_entry
-  .quad (1<<44) | (1<<47) | (1<<41) | (1<<43) | (1<<53) // code segment
-
-gdt64_data_entry:
-  .set gdt64_data_seg, gdt64_data_entry - gdt64_zero_entry
-  .quad (1<<44) | (1<<47) | (1<<41) // data segment
-
-gdt64_pointer_entry:
-  .set gdt64_pointer_seg, gdt64_pointer_entry - gdt64_zero_entry - 1
-  .word gdt64_pointer_seg
-  .quad gdt64_zero_entry

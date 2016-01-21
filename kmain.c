@@ -145,6 +145,40 @@ multiboot_header_tag* print_tag(multiboot_header_tag *tag) {
   return (multiboot_header_tag*)next;
 }
 
+__attribute__ ((__noreturn__))
+void abort() {
+  // Abort by executing the x86 undefined instruction
+  while (1) {
+    __asm__ ("ud2");
+  }
+}
+
+
+/* Verify that the compiler accepts the __interrupt__ attribute */
+
+struct interrupt_frame
+{
+  u64 ip;
+  u64 cs;
+  u64 flags;
+  u64 sp;
+  u64 ss;
+};
+
+volatile u64 ga;
+
+__attribute__ ((__interrupt__, __used__))
+void intr (struct interrupt_frame *frame) {
+  (void)frame;
+  ga += 4;
+}
+
+__attribute__ ((__interrupt__, __used__))
+void expt (struct interrupt_frame *frame, u64 error_code) {
+  (void)frame;
+  (void)error_code;
+}
+
 // [Multiboot 1.6](http://nongnu.askapache.com/grub/phcoder/multiboot.pdf) info.
 // [OSDev.org Mulitboot2](http://wiki.osdev.org/Multiboot#Multiboot_2) info.
 //
@@ -156,6 +190,8 @@ multiboot_header_tag* print_tag(multiboot_header_tag *tag) {
 //
 // Previously he used 1GB pages there they are only supported in newer
 // cpu's so he's nowusing the 2MB pages.
+
+__attribute__ ((__noreturn__))
 void kmain(void* mb_info) {
   u32 total_size = *(u32*)mb_info;
   u32 reserved = *(u32*)(mb_info + 4);
@@ -177,4 +213,6 @@ void kmain(void* mb_info) {
     }
     tag = next;
   }
+
+  abort();
 }

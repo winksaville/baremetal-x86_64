@@ -6,5 +6,6 @@ iso.img
 iso.gas.img
 kmain.elf.txt
 kmain.gas.elf.txt
+kmain.o.txt
 *.o
 *.elf

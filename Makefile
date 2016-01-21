@@ -62,6 +62,7 @@ boot.o: boot.asm
 
 kmain.o: kmain.c
 	$(CC) $(CFLAGS) -c kmain.c -o kmain.o
+	objdump -x -d -s $@ > $@.txt
 
 iso.img: kmain.elf grub.cfg
 	mkdir -p isofiles/boot/grub

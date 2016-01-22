@@ -273,5 +273,25 @@ void kmain(void* mb_info) {
   print_u8_nl("sizeof(desc_ptr): ", (u8)sizeof(desc_ptr));
   print_u16_nl("desc_ptr.limit:   ", desc_ptr.limit);
   print_u64_nl("desc_ptr.address: ", desc_ptr.address);
+
+  x86_lidt(&desc_ptr);
+
+  descriptor_ptr idtr;
+  x86_sidt(&idtr);
+
+  print_u16_nl("idtr.limit:   ", idtr.limit);
+  print_u64_nl("idtr.address: ", idtr.address);
+  if (idtr.limit != desc_ptr.limit) {
+    print_str_nl("ERROR desc_ptr.limit != idtr.limit", "");
+  }
+  if (idtr.address != desc_ptr.address) {
+    print_str_nl("ERROR desc_ptr.address != idtr.address", "");
+  }
+
+  descriptor_ptr gdtr;
+  x86_sgdt(&gdtr);
+  print_u16_nl("gdtr.limit:   ", gdtr.limit);
+  print_u64_nl("gdtr.address: ", gdtr.address);
+
   abort();
 }

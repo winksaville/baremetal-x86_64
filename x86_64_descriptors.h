@@ -25,6 +25,29 @@ struct descriptor_ptr {
   u64 address;
 } __attribute__((__packed__));
 
+
+/** Descriptor Pointer typedef */
 typedef struct descriptor_ptr descriptor_ptr;
+
+/** Load the IDT register from desc_ptr */
+static __inline__ void x86_lidt(descriptor_ptr *desc_ptr) {
+  __asm__ volatile("lidt %0" :: "m" (*desc_ptr));
+}
+
+/** Store the IDT register to desc_ptr */
+static __inline__ void x86_sidt(descriptor_ptr *desc_ptr) {
+  __asm__ volatile("sidt %0" : "=m" (*desc_ptr));
+}
+
+/** Load the GDT register from desc_ptr */
+static __inline__ void x86_lgdt(descriptor_ptr *desc_ptr) {
+  __asm__ volatile("lgdt %0" :: "m" (*desc_ptr));
+}
+
+/** Store the GDT register to desc_ptr */
+static __inline__ void x86_sgdt(descriptor_ptr *desc_ptr) {
+  __asm__ volatile("sgdt %0" : "=m" (*desc_ptr));
+}
+
 
 #endif

@@ -17,21 +17,21 @@
   // Global Descriptor Table
   .section .rodata
   .align 4
-gdt64_zero_entry:
+gdt64:
   .quad 0 // zero entry
 
 gdt64_code_entry:
-  .set gdt64_code_seg, gdt64_code_entry - gdt64_zero_entry
+  .set gdt64_code_seg, gdt64_code_entry - gdt64
   .quad (1<<44) | (1<<47) | (1<<41) | (1<<43) | (1<<53) // code segment
 
 gdt64_data_entry:
-  .set gdt64_data_seg, gdt64_data_entry - gdt64_zero_entry
+  .set gdt64_data_seg, gdt64_data_entry - gdt64
   .quad (1<<44) | (1<<47) | (1<<41) // data segment
 
-gdt64_pointer_entry:
-  .set gdt64_pointer_seg, gdt64_pointer_entry - gdt64_zero_entry - 1
-  .word gdt64_pointer_seg
-  .quad gdt64_zero_entry
+gdt64_pointer:
+  .set gdt64_limit, gdt64_pointer - gdt64 - 1
+  .word gdt64_limit
+  .quad gdt64
 
 
   // Entry code
@@ -55,7 +55,7 @@ _start:
     call set_up_SSE
 
     // load the 64-bit GDT
-    lgdt (gdt64_pointer_entry)
+    lgdt (gdt64_pointer)
 
     // update selectors
     movw $gdt64_data_seg, %ax

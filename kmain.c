@@ -15,6 +15,7 @@
  */
 
 #include "inttypes.h"
+#include "x86_64_descriptors.h"
 
 // From [here](//http://www.lammertbies.nl/comm/info/RS-232_io.html)
 #define COM1_BASE 0x3F8
@@ -54,13 +55,40 @@ void print_str(char* s) {
   }
 }
 
+void print_int(long long v) {
+  if (v == 0) {
+    putchar('0');
+  } else {
+    // A buffer large enough to hold a 2^64 integer
+    // converted to decaimal without a trailing 0
+    // calculated using  roundup(log(2^64))
+    char buff[20];
+    unsigned int i = 0;
+    int negative = 0;
+
+    if (v < 0) {
+      negative = 1;
+      v = -v;
+    }
+    while (i < sizeof(buff) && (v > 0)) {
+      buff[i++] = u4_2_ascii[v % 10];
+      v /= 10;
+    }
+    if (negative) {
+      putchar('-');
+    }
+    while (i > 0) {
+      putchar(buff[--i]);
+    }
+  }
+}
+
 void print_u8(u8 v) {
   for (unsigned int i = 0; i < (sizeof(v) * 2); i++) {
     putchar(u4_2_ascii[(v & 0xF0) >> 4]);
     v <<= 4;
   }
 }
-
 
 void print_u16(u16 v) {
   for (unsigned int i = 0; i < (sizeof(v) * 2); i++) {
@@ -91,6 +119,24 @@ void print_str_nl(char *s, char *str) {
   print_nl();
 }
 
+
+void print_int_nl(char *s, long long v) {
+  print_str(s);
+  print_int(v);
+  print_nl();
+}
+
+void print_u8_nl(char *s, u8 v) {
+  print_str(s);
+  print_u8(v);
+  print_nl();
+}
+
+void print_u16_nl(char *s, u16 v) {
+  print_str(s);
+  print_u16(v);
+  print_nl();
+}
 
 void print_u32_nl(char *s, u32 v) {
   print_str(s);
@@ -133,7 +179,7 @@ multiboot_header_tag* print_tag(multiboot_header_tag *tag) {
   print_str(" type=");
   print_u32(tag->type);
   print_str(" size=");
-  print_u32(tag->size);
+  print_int(tag->size);
   print_nl();
 
   void* next = (void*)((((uptr)tag + tag->size) + 7) & 0xfffffffffffffff8);
@@ -199,8 +245,8 @@ void kmain(void* mb_info) {
   multiboot_header_tag* tag = (multiboot_header_tag*)(mb_info + 8);
 
   print_uptr_nl("mb_info:    ", mb_info);
-  print_u32_nl( "total_size: ", total_size);
-  print_u32_nl( "reserved:   ", reserved);
+  print_int_nl( "total_size: ", total_size);
+  print_int_nl( "reserved:   ", reserved);
   print_uptr_nl("mb_end:     ", mb_end);
 
   while ((tag < mb_end) && (tag->type != 0) && (tag->size != 8)) {
@@ -214,5 +260,18 @@ void kmain(void* mb_info) {
     tag = next;
   }
 
+  descriptor_ptr desc_ptr;
+  desc_ptr.limit = 0x1234;
+  desc_ptr.address = 0x1234567812345678;
+
+  print_int_nl("0:                ", 0);
+  print_int_nl("1:                ", 1);
+  print_int_nl("7F..FF:           ", 0x7FFFFFFFFFFFFFFFLL);
+  print_int_nl("FF..FF:           ", 0xFFFFFFFFFFFFFFFFLL);
+  print_int_nl("-1:               ", -1);
+  print_int_nl("sizeof(desc_ptr): ", sizeof(desc_ptr));
+  print_u8_nl("sizeof(desc_ptr): ", (u8)sizeof(desc_ptr));
+  print_u16_nl("desc_ptr.limit:   ", desc_ptr.limit);
+  print_u64_nl("desc_ptr.address: ", desc_ptr.address);
   abort();
 }

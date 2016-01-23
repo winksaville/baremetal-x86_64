@@ -60,7 +60,7 @@ bootgas.o: bootgas.S
 
 boot.o: boot.asm
 
-kmain.o: kmain.c
+kmain.o: kmain.c x86_64_descriptors.h inttypes.h
 	$(CC) $(CFLAGS) -c kmain.c -o kmain.o
 	objdump -x -d -s $@ > $@.txt
 

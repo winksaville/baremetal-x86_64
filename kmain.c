@@ -113,7 +113,12 @@ void print_uptr(void* p) {
   print_u64((u64)p);
 }
 
-void print_str_nl(char *s, char *str) {
+void print_str_nl(char *str) {
+  print_str(str);
+  print_nl();
+}
+
+void print_str_str_nl(char *s, char *str) {
   print_str(s);
   print_str(str);
   print_nl();
@@ -200,43 +205,71 @@ void abort() {
 }
 
 
-/* Verify that the compiler accepts the __interrupt__ attribute */
+void print_intr_frame(char* str, intr_frame* frame) {
+  print_str_nl(str);
+  print_u64_nl(" frame->ip: ", frame->ip);
+  print_u64_nl(" frame->cs: ", frame->cs);
+  print_u64_nl(" frame->flags: ", frame->flags);
+  print_u64_nl(" frame->sp: ", frame->sp);
+  print_u64_nl(" frame->ss: ", frame->ss);
+}
 
-struct interrupt_frame
-{
-  u64 ip;
-  u64 cs;
-  u64 flags;
-  u64 sp;
-  u64 ss;
-};
-
-volatile u64 ga;
-
-__attribute__ ((__interrupt__, __used__))
-void intr (struct interrupt_frame *frame) {
-  (void)frame;
-  ga += 4;
+void print_gate(char *str, intr_trap_gate* gate) {
+  print_str_nl(str);
+  print_u16_nl(" gate->offset_lo: ", gate->offset_lo);
+  print_u16_nl(" gate->segment: ", gate->segment);
+  print_u16_nl(" gate->ist: ", gate->ist);
+  print_u16_nl(" gate->unused_1: ", gate->unused_1);
+  print_u16_nl(" gate->type: ", gate->type);
+  print_u16_nl(" gate->unused_2: ", gate->unused_2);
+  print_u16_nl(" gate->dpl: ", gate->dpl);
+  print_u16_nl(" gate->p: ", gate->p);
+  print_u64_nl(" gate->offset_hi: ", gate->offset_hi);
+  print_u64_nl(" gate->offset:    ", GET_GATE_OFFSET(*gate));
+  print_u32_nl(" gate->unused_3:    ", gate->unused_3);
 }
 
 __attribute__ ((__interrupt__, __used__))
-void expt (struct interrupt_frame *frame, u64 error_code) {
-  (void)frame;
-  (void)error_code;
+void intr_unused(struct intr_frame *frame) {
+  print_intr_frame("intr_unused:", frame);
 }
 
-void print_gate(intr_trap_gate* gate) {
-  print_u16_nl("gate->offset_lo: ", gate->offset_lo);
-  print_u16_nl("gate->segment: ", gate->segment);
-  print_u16_nl("gate->ist: ", gate->ist);
-  print_u16_nl("gate->unused_1: ", gate->unused_1);
-  print_u16_nl("gate->type: ", gate->type);
-  print_u16_nl("gate->unused_2: ", gate->unused_2);
-  print_u16_nl("gate->dpl: ", gate->dpl);
-  print_u16_nl("gate->p: ", gate->p);
-  print_u64_nl("gate->offset_hi: ", gate->offset_hi);
-  print_u64_nl("gate->offset:    ", GET_GATE_OFFSET(*gate));
-  print_u32_nl("gate->unused_3:    ", gate->unused_3);
+__attribute__ ((__interrupt__, __used__))
+void expt_unused(struct intr_frame *frame, u64 error_code) {
+  print_intr_frame("expt_unused:", frame);
+  print_u64_nl(" error_code=", error_code);
+}
+
+__attribute__ ((__interrupt__, __used__))
+void expt_invalid_opcode(struct intr_frame *frame, u64 error_code) {
+  print_intr_frame("expt_invalid_opcode:", frame);
+  print_u64_nl(" error_code=", error_code);
+}
+
+/* Interrupt Descriptor Table, must be on a 4K boundary */
+intr_trap_gate idt[256] __attribute__((__aligned__(0x1000)));
+
+#define ARRAY_COUNT(__array) (sizeof(__array)/sizeof(__typeof__(__array[0])))
+
+void setidt_intr(u64 idx, intr_handler* ih) {
+  intr_trap_gate g = INITIALIZER_INTR_TRAP_GATE;
+  idt[idx] = g;
+  idt[idx].offset_lo = GATE_OFFSET_LO(ih);
+  idt[idx].offset_hi = GATE_OFFSET_HI(ih);
+}
+
+void setidt_expt(u64 idx, expt_handler* eh) {
+  intr_trap_gate g = INITIALIZER_INTR_TRAP_GATE;
+  idt[idx] = g;
+  idt[idx].offset_lo = GATE_OFFSET_LO(eh);
+  idt[idx].offset_hi = GATE_OFFSET_HI(eh);
+}
+
+void setidtr() {
+  descriptor_ptr dp;
+  dp.limit = (u16)(((uptr)&idt[ARRAY_COUNT(idt)] - (uptr)&idt[0] - 1) & 0xFFFF);
+  dp.address = (uptr)idt;
+  x86_lidt(&dp);
 }
 
 // [Multiboot 1.6](http://nongnu.askapache.com/grub/phcoder/multiboot.pdf) info.
@@ -269,7 +302,7 @@ void kmain(void* mb_info) {
 
     if (tag->type == 1) {
       char* cmdline = (char*)tag + 8;
-      print_str_nl("cmd_line=", cmdline);
+      print_str_str_nl("cmd_line=", cmdline);
     }
     tag = next;
   }
@@ -292,14 +325,14 @@ void kmain(void* mb_info) {
 
   descriptor_ptr idtr;
   x86_sidt(&idtr);
-
   print_u16_nl("idtr.limit:   ", idtr.limit);
   print_u64_nl("idtr.address: ", idtr.address);
+
   if (idtr.limit != desc_ptr.limit) {
-    print_str_nl("ERROR desc_ptr.limit != idtr.limit", "");
+    print_str_nl("ERROR desc_ptr.limit != idtr.limit");
   }
   if (idtr.address != desc_ptr.address) {
-    print_str_nl("ERROR desc_ptr.address != idtr.address", "");
+    print_str_nl("ERROR desc_ptr.address != idtr.address");
   }
 
   descriptor_ptr gdtr;
@@ -310,7 +343,7 @@ void kmain(void* mb_info) {
   uptr	offset = 0x1234567812345678;
   intr_trap_gate gate = INITIALIZER_INTR_TRAP_GATE;
   print_int_nl("sizeof(gate):   ", sizeof(gate));
-  print_gate(&gate);
+  print_gate("gate default initialization:", &gate);
 
   gate.offset_lo = GATE_OFFSET_LO(offset);
   gate.segment = 0x1234;
@@ -319,7 +352,23 @@ void kmain(void* mb_info) {
   gate.dpl = 0x3;
   gate.p = 0x1;
   gate.offset_hi = GATE_OFFSET_HI(offset);
-  print_gate(&gate);
+  print_gate("gate specific initialization:", &gate);
+
+  for (u64 idx = 0; idx < ARRAY_COUNT(idt); idx++) {
+    setidt_intr(idx, intr_unused);
+  }
+  setidt_expt(6, expt_invalid_opcode);
+  print_gate("invalid opcode gate:", &idt[6]);
+
+  setidtr();
+  x86_sidt(&idtr);
+  print_u64_nl("sizeof(idt):         ", sizeof(idt));
+  print_u64_nl("sizeof(typeof(idt)): ", sizeof(__typeof__(idt[0])));
+  print_u64_nl("ARRAY_COUNT(idt):    ", ARRAY_COUNT(idt));
+  print_uptr_nl("idt[0]:              ", &idt[0]);
+  print_uptr_nl("idt[last]:           ", &idt[ARRAY_COUNT(idt)]);
+  print_u16_nl("idtr.limit:          ", idtr.limit);
+  print_u64_nl("idtr.address:        ", idtr.address);
 
   abort();
 }

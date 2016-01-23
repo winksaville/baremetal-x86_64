@@ -28,7 +28,6 @@ struct descriptor_ptr {
 _Static_assert(sizeof(struct descriptor_ptr) == 10,
     L"struct descriptor_ptr != 10");
 
-
 /** Descriptor Pointer typedef */
 typedef struct descriptor_ptr descriptor_ptr;
 
@@ -90,13 +89,30 @@ typedef struct intr_trap_gate intr_trap_gate;
 }
 
 /** Passed an integer i return the lower 16 bits */
-#define GATE_OFFSET_LO(__i) (((__i) >> 0) & 0xFFFF)
+#define GATE_OFFSET_LO(__addr) (((u64)(__addr) >> 0) & 0xFFFF)
 
 /** Passed an integer i return the upper 48 bits */
-#define GATE_OFFSET_HI(__i) (((__i) >> 16) & 0xFFFFFFFFFFFF)
+#define GATE_OFFSET_HI(__addr) (((u64)(__addr) >> 16) & 0xFFFFFFFFFFFFLL)
 
 /** Passed a gate return the offset as a uptr */
 #define GET_GATE_OFFSET(__gate) \
   ((uptr)((((uptr)(__gate).offset_hi) << 16) | (uptr)((__gate).offset_lo)))
+
+/** Interrupt stack frame */
+typedef struct intr_frame {
+  u64 ip;
+  u64 cs;
+  u64 flags;
+  u64 sp;
+  u64 ss;
+} intr_frame;
+
+typedef void (intr_handler)(struct intr_frame* frame);
+
+typedef void (expt_handler) (struct intr_frame* frame, u64 error_code);
+
+void setidt_intr(u64 idx, intr_handler ih);
+
+void setidt_expt(u64 idx, expt_handler eh);
 
 #endif

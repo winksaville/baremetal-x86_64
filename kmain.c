@@ -225,6 +225,20 @@ void expt (struct interrupt_frame *frame, u64 error_code) {
   (void)error_code;
 }
 
+void print_gate(intr_trap_gate* gate) {
+  print_u16_nl("gate->offset_lo: ", gate->offset_lo);
+  print_u16_nl("gate->segment: ", gate->segment);
+  print_u16_nl("gate->ist: ", gate->ist);
+  print_u16_nl("gate->unused_1: ", gate->unused_1);
+  print_u16_nl("gate->type: ", gate->type);
+  print_u16_nl("gate->unused_2: ", gate->unused_2);
+  print_u16_nl("gate->dpl: ", gate->dpl);
+  print_u16_nl("gate->p: ", gate->p);
+  print_u64_nl("gate->offset_hi: ", gate->offset_hi);
+  print_u64_nl("gate->offset:    ", GET_GATE_OFFSET(*gate));
+  print_u32_nl("gate->unused_3:    ", gate->unused_3);
+}
+
 // [Multiboot 1.6](http://nongnu.askapache.com/grub/phcoder/multiboot.pdf) info.
 // [OSDev.org Mulitboot2](http://wiki.osdev.org/Multiboot#Multiboot_2) info.
 //
@@ -292,6 +306,20 @@ void kmain(void* mb_info) {
   x86_sgdt(&gdtr);
   print_u16_nl("gdtr.limit:   ", gdtr.limit);
   print_u64_nl("gdtr.address: ", gdtr.address);
+
+  uptr	offset = 0x1234567812345678;
+  intr_trap_gate gate = INITIALIZER_INTR_TRAP_GATE;
+  print_int_nl("sizeof(gate):   ", sizeof(gate));
+  print_gate(&gate);
+
+  gate.offset_lo = GATE_OFFSET_LO(offset);
+  gate.segment = 0x1234;
+  gate.ist = 0x7;
+  gate.type = 0xF;
+  gate.dpl = 0x3;
+  gate.p = 0x1;
+  gate.offset_hi = GATE_OFFSET_HI(offset);
+  print_gate(&gate);
 
   abort();
 }

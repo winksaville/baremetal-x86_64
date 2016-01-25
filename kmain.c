@@ -246,8 +246,8 @@ void expt_invalid_opcode(struct intr_frame *frame, u64 error_code) {
   print_u64_nl(" error_code=", error_code);
 }
 
-/* Interrupt Descriptor Table, must be on a 4K boundary */
-intr_trap_gate idt[256] __attribute__((__aligned__(0x1000)));
+/* Interrupt Descriptor Table */
+intr_trap_gate idt[256];
 
 #define ARRAY_COUNT(__array) (sizeof(__array)/sizeof(__typeof__(__array[0])))
 

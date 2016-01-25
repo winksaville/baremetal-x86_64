@@ -89,20 +89,19 @@ typedef struct intr_trap_gate intr_trap_gate;
    .unused_3 = 0, \
 }
 
-/** Passed an address return the bits for intr_trap_gate.offset_lo */
+/** Return the bits for intr_trap_gate.offset_lo */
 #define GATE_OFFSET_LO(addr) ({ \
   u64 r = ((u64)(addr) >> 0) & 0xFFFF; \
   r; \
 })
 
-
-/** Passed an address return the bits for intr_trap_gate.offset_hi */
+/** Return the bits for intr_trap_gate.offset_hi */
 #define GATE_OFFSET_HI(addr) ({ \
   u64 r = ((u64)(addr) >> 16) & 0xFFFFFFFFFFFFLL; \
   r; \
 })
 
-/** Passed a gate return the offset as a uptr */
+/** Return the intr_trap_gate.offset as a uptr */
 #define GET_GATE_OFFSET(gate) ({ \
   uptr r = (uptr)((((uptr)(gate).offset_hi) << 16) | (uptr)((gate).offset_lo)); \
   r; \
@@ -134,6 +133,66 @@ enum {
   DT_64_INTR_GATE = 14,
   DT_64_TRAP_GATE = 15,
 };
+
+/**
+ * Segment Descriptor
+ *
+ * See "Intel 64 and IA-32 Architectures Software Developer's Manual"
+ * Volume 3 chapter 3.4.5 "Segment Descriptors"
+ * Figure 3-8. Segment Descriptor
+ */
+struct seg_desc {
+  u64 seg_limit_lo:16;
+  u64 base_addr_lo:24;
+  u64 type:4;
+  u64 s:1;
+  u64 dpl:2;
+  u64 p:1;
+  u64 seg_limit_hi:4;
+  u64 avl:1;
+  u64 l:1;
+  u64 d_b:1;
+  u64 g:1;
+  u64 base_addr_hi:8;
+} __attribute__((__packed__));
+
+_Static_assert(sizeof(struct seg_desc) == 8,
+    L"segment_descriptor not 8 bytes");
+
+typedef struct seg_desc seg_desc;
+
+#define INITIALIZER_SEG_DESC { \
+  .seg_limit_lo = 0, \
+  .base_addr_lo = 0, \
+  .type = 0, \
+  .s = 0, \
+  .dpl = 0, \
+  .p = 0, \
+  .seg_limit_hi = 0, \
+  .avl = 0, \
+  .l = 0, \
+  .d_b = 0, \
+  .g = 0, \
+  .base_addr_hi = 0, \
+}
+
+/** Return the bits for seg_desc.seg_limit_lo */
+#define SEG_DESC_SEG_LIMIT_LO(i) ({ \
+  u64 r = (((u64)(i) >> 0) & 0xFFFF); \
+  r; \
+})
+
+/** Return the bits for seg_desc.seg_limit_hi */
+#define SEG_DESC_SEG_LIMIT_OFFSET_HI(addr) ({ \
+  u64 r = ((u64)(addr) >> 16) & 0xFFFFFFFFFFFFLL; \
+  r; \
+})
+
+/** Return seg_desc.seg_limit as a u64 */
+#define GET_SEG_DESC_SEG_LIMIT(sd) ({ \
+  u64 r = (u64)((((uptr)(sd).seg_limit_hi) << 16) | (u64)((sd).seg_limit_lo)); \
+  r; \
+})
 
 /** Interrupt stack frame */
 typedef struct intr_frame {

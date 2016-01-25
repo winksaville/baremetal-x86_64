@@ -194,7 +194,13 @@ typedef struct seg_desc seg_desc;
   r; \
 })
 
-/** Interrupt stack frame */
+/**
+ * Interrupt stack frame
+ *
+ * This is the signature required for the compiler so
+ * intr_handler and expt_handler are can be marked with
+ * the __attribute__((__interrupt__))
+ */
 typedef struct intr_frame {
   u64 ip;
   u64 cs;

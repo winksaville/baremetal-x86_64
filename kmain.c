@@ -256,6 +256,7 @@ void setidt_intr(u64 idx, intr_handler* ih) {
   idt[idx] = g;
   idt[idx].offset_lo = GATE_OFFSET_LO(ih);
   idt[idx].offset_hi = GATE_OFFSET_HI(ih);
+  idt[idx].type = DT_64_INTR_GATE;
 }
 
 void setidt_expt(u64 idx, expt_handler* eh) {

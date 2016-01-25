@@ -55,7 +55,8 @@ static __inline__ void x86_sgdt(descriptor_ptr *desc_ptr) {
  * Interrupt or Trap Gate.
  *
  * See "Intel 64 and IA-32 Architectures Software Developer's Manual"
- * Volume 3A 6-16 6.14.1 "64-Bit Mode IDT"
+ * Volume 3 chapter 6.14.1 "64-Bit Mode IDT"
+ * Figure 6-7. 64-Bit IDT Gate Descriptors
  */
 struct intr_trap_gate {
   u64 offset_lo:16;
@@ -88,15 +89,51 @@ typedef struct intr_trap_gate intr_trap_gate;
    .unused_3 = 0, \
 }
 
-/** Passed an integer i return the lower 16 bits */
-#define GATE_OFFSET_LO(__addr) (((u64)(__addr) >> 0) & 0xFFFF)
+/** Passed an address return the bits for intr_trap_gate.offset_lo */
+#define GATE_OFFSET_LO(addr) ({ \
+  u64 r = ((u64)(addr) >> 0) & 0xFFFF; \
+  r; \
+})
 
-/** Passed an integer i return the upper 48 bits */
-#define GATE_OFFSET_HI(__addr) (((u64)(__addr) >> 16) & 0xFFFFFFFFFFFFLL)
+
+/** Passed an address return the bits for intr_trap_gate.offset_hi */
+#define GATE_OFFSET_HI(addr) ({ \
+  u64 r = ((u64)(addr) >> 16) & 0xFFFFFFFFFFFFLL; \
+  r; \
+})
 
 /** Passed a gate return the offset as a uptr */
-#define GET_GATE_OFFSET(__gate) \
-  ((uptr)((((uptr)(__gate).offset_hi) << 16) | (uptr)((__gate).offset_lo)))
+#define GET_GATE_OFFSET(gate) ({ \
+  uptr r = (uptr)((((uptr)(gate).offset_hi) << 16) | (uptr)((gate).offset_lo)); \
+  r; \
+})
+
+
+/**
+ * Desctriptor Types for 64 bit IA32e
+ *
+ * See "Intel 64 and IA-32 Architectures Software Developer's Manual"
+ * Volume 3 chapter 3.5 "Segment Descriptor Types"
+ * Table 3-2. System-Segment and Gate-Descriptor Types
+ */
+enum {
+  DT_64_UPPER =      0,
+  DT_64_RESV_1 =     1,
+  DT_64_LDT =        2,
+  DT_64_RESV_3 =     3,
+  DT_64_RESV_4 =     4,
+  DT_64_RESV_5 =     5,
+  DT_64_RESV_6 =     6,
+  DT_64_RESV_7 =     7,
+  DT_64_RESV_8 =     8,
+  DT_64_TSS_AVAIL =  9,
+  DT_64_RESV_10 =   10,
+  DT_64_TSS64_BUSY= 11,
+  DT_64_CALL_GATE = 12,
+  DT_64_RESV_13 =   13,
+  DT_64_INTR_GATE = 14,
+  DT_64_TRAP_GATE = 15,
+};
 
 /** Interrupt stack frame */
 typedef struct intr_frame {

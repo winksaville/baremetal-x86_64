@@ -12,6 +12,9 @@
 # see the license for the specific language governing permissions and
 # limitations under the license.
 
+# Turn off builtin implicit rules
+.SUFFIXES:
+
 MK_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
 CUR_DIR := $(notdir $(patsubst %/,%,$(dir $(MK_PATH))))
 
@@ -37,15 +40,17 @@ LK=$(LK_FLAVOR)-elf-gcc
 # for now its assumed that there is no floating.
 CFLAGS:=-m$(BITNESS) -std=c11 -ffreestanding -O2 -mno-red-zone -static -Wall -Wextra -nostdlib -nostartfiles -nodefaultlibs
 
+OBJ_FILES:=mb2.o kmain.o print.o test_multiboot.o test_interrupts.o
+
 .PHONY: all
 all: kmain.elf kmain.gas.elf
 
-kmain.elf: mb2.o boot.o kmain.o link.ld
-	$(LK) $(CFLAGS) -Wl,-n,-T,link.ld -o $@ mb2.o boot.o kmain.o -lgcc
+kmain.elf: boot.o $(OBJ_FILES) link.ld
+	$(LK) $(CFLAGS) -Wl,-n,-T,link.ld -o $@ boot.o $(OBJ_FILES) -lgcc
 	objdump -x -d -s -mi386 $@ > $@.txt
 
-kmain.gas.elf: mb2.o boot.gas.o kmain.o link.ld
-	$(LK) $(CFLAGS) -Wl,-n,-T,link.ld -o $@ mb2.o boot.gas.o kmain.o -lgcc
+kmain.gas.elf: boot.gas.o $(OBJ_FILES) link.ld
+	$(LK) $(CFLAGS) -Wl,-n,-T,link.ld -o $@ boot.gas.o $(OBJ_FILES) -lgcc
 	objdump -x -d -s -mi386 $@ > $@.txt
 
 %.o: %.asm
@@ -54,15 +59,23 @@ kmain.gas.elf: mb2.o boot.gas.o kmain.o link.ld
 %.o: %.S
 	$(CC) $(CFLAGS) -c $< -o $@
 
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+	objdump -x -d -s $@ > $@.txt
+
 mb2.o: mb2.S
 
-bootgas.o: bootgas.S
+boot.gas.o: boot.gas.S
 
 boot.o: boot.asm
 
-kmain.o: kmain.c x86_64_descriptors.h inttypes.h
-	$(CC) $(CFLAGS) -c kmain.c -o kmain.o
-	objdump -x -d -s $@ > $@.txt
+print.o: print.c inttypes.h print.h
+
+test_multiboot.o: test_multiboot.c test_multiboot.h inttypes.h print.h
+
+test_interrupts.o: test_interrupts.c x86_64_descriptors.h inttypes.h test_interrupts.h print.h
+
+kmain.o: kmain.c x86_64_descriptors.h inttypes.h test_multiboot.h test_interrupts.h print.h
 
 iso.img: kmain.elf grub.cfg
 	mkdir -p isofiles/boot/grub
@@ -97,13 +110,11 @@ dbg.gas: iso.gas.img
 
 .PHONY: clean
 clean:
-	rm -rf boot.gas.o boot.gas.o.txt
-	rm -rf boot.o boot.o.txt
-	rm -rf mb2.o mb2.o.txt
-	rm -rf kmain.o kmain.o.txt
-	rm -rf kmain.elf kmain.elf.txt
-	rm -rf kmain.gas.elf kmain.gas.elf.txt
-	rm -rf iso.gas.img
-	rm -rf iso.img
+	rm -rf $(OBJ_FILES)
+	rm -rf *.o
+	rm -rf *.elf
+	rm -rf *.o.txt
+	rm -rf *.elf.txt
+	rm -rf *.img
 	rm -rf isofiles
 	rm -rf isofiles.gas

@@ -38,33 +38,33 @@ the commands below you'll want to add the following to
 your $PATH:
  - $HOME/opt/bin
  - $HOME/opt/x-tools/x86_64-unknown-elf/bin
-
-  git clone https://github.com/crosstool-ng/crosstool-ng
-  cd crosstool-ng
-  ./bootstrap
-  ./configure --prefix=$HOME/opt
-  make
-  make install
-  cd ..
-
+```
+git clone https://github.com/crosstool-ng/crosstool-ng
+cd crosstool-ng
+./bootstrap
+./configure --prefix=$HOME/opt
+make
+make install
+cd ..
+```
 Next get a modified version of GCC that I've created which
 supports interrupt attribute and use ct-ng to build and install.
 Eventaully gcc 7.x.x will support interrupt attribute.
-
-  mkdir -p x86_64-elf
-  cd x86_64-elf
-  git clone https://github.com/winksaville/gcc.git --depth 1 --single-branch --branch wink-intr-attr
-  cp ../config.x86_64-unknown-elf .config
-  ct-ng build
-  cd ..
-
+```
+mkdir -p x86_64-elf
+cd x86_64-elf
+git clone https://github.com/winksaville/gcc.git --depth 1 --single-branch --branch wink-intr-attr
+cp ../config.x86_64-unknown-elf .config
+ct-ng build
+cd ..
+```
 Build and run nasm version
 ---
-
-  make run
-
+```
+make run
+```
 Build and run gas version
 ---
-
-  make run.gas
-
+```
+make run.gas
+```

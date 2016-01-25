@@ -1,5 +1,6 @@
-x86_64-unknown-elf/
+x86_64-elf/
 crosstool-ng/
+gcc/
 isofiles/
 isofiles.gas/
 iso.img

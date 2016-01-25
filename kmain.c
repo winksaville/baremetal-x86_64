@@ -15,6 +15,8 @@
  */
 
 #include "inttypes.h"
+#include "x86_64_regs.h"
+#include "print.h"
 #include "test_multiboot.h"
 #include "test_interrupts.h"
 
@@ -41,6 +43,20 @@ void abort() {
 
 __attribute__ ((__noreturn__))
 void kmain(void* mb_info) {
+  (void)mb_info;
+
+  print_u16_nl("ds=", x86_read_ds());
+  print_u16_nl("ss=", x86_read_ss());
+  print_u16_nl("es=", x86_read_es());
+
+  x86_write_ds(0x00);
+  x86_write_ss(0x00);
+  x86_write_es(0x00);
+
+  print_u16_nl("ds=", x86_read_ds());
+  print_u16_nl("ss=", x86_read_ss());
+  print_u16_nl("es=", x86_read_es());
+
   test_multiboot(mb_info);
   test_interrupts();
 

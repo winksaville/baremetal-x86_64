@@ -51,7 +51,8 @@ kmain.elf: boot.o $(OBJ_FILES) link.ld
 
 kmain.gas.elf: boot.gas.o $(OBJ_FILES) link.ld
 	$(LK) $(CFLAGS) -Wl,-n,-T,link.ld -o $@ boot.gas.o $(OBJ_FILES) -lgcc
-	objdump -x -d -s -mi386 $@ > $@.txt
+	#objdump -x -d -s -mi386 $@ > $@.txt
+	objdump -x -d -s $@ > $@.txt
 
 %.o: %.asm
 	$(NASM) -felf64 $< -o $@
@@ -61,7 +62,7 @@ kmain.gas.elf: boot.gas.o $(OBJ_FILES) link.ld
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-	objdump -x -d -s $@ > $@.txt
+	objdump -d $@ > $@.txt
 
 mb2.o: mb2.S
 
@@ -75,7 +76,7 @@ test_multiboot.o: test_multiboot.c test_multiboot.h inttypes.h print.h
 
 test_interrupts.o: test_interrupts.c x86_64_descriptors.h inttypes.h test_interrupts.h print.h
 
-kmain.o: kmain.c x86_64_descriptors.h inttypes.h test_multiboot.h test_interrupts.h print.h
+kmain.o: kmain.c x86_64_regs.h x86_64_descriptors.h inttypes.h test_multiboot.h test_interrupts.h print.h
 
 iso.img: kmain.elf grub.cfg
 	mkdir -p isofiles/boot/grub

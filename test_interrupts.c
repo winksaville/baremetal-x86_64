@@ -16,7 +16,7 @@
 
 #include "inttypes.h"
 #include "print.h"
-#include "x86_64_descriptors.h"
+#include "descriptors_x86_64.h"
 
 void print_intr_frame(char* str, intr_frame* frame) {
   print_str_nl(str);
@@ -83,28 +83,28 @@ void setidtr() {
   descriptor_ptr dp;
   dp.limit = (u16)(((uptr)&idt[ARRAY_COUNT(idt)] - (uptr)&idt[0] - 1) & 0xFFFF);
   dp.address = (uptr)idt;
-  x86_lidt(&dp);
+  load_idtr(&dp);
 }
 
 void test_interrupts() {
-  descriptor_ptr desc_ptr;
-  desc_ptr.limit = 0x1234;
-  desc_ptr.address = 0x1234567812345678;
+  descriptor_ptr desc_ptr = {
+    .limit = 0x1234,
+    .address = 0x1234567812345678,
+  };
 
   print_int_nl("0:                ", 0);
   print_int_nl("1:                ", 1);
   print_int_nl("7F..FF:           ", 0x7FFFFFFFFFFFFFFFLL);
   print_int_nl("FF..FF:           ", 0xFFFFFFFFFFFFFFFFLL);
   print_int_nl("-1:               ", -1);
+
   print_int_nl("sizeof(desc_ptr): ", sizeof(desc_ptr));
-  print_u8_nl("sizeof(desc_ptr): ", (u8)sizeof(desc_ptr));
   print_u16_nl("desc_ptr.limit:   ", desc_ptr.limit);
   print_u64_nl("desc_ptr.address: ", desc_ptr.address);
-
-  x86_lidt(&desc_ptr);
+  load_idtr(&desc_ptr);
 
   descriptor_ptr idtr;
-  x86_sidt(&idtr);
+  store_idtr(&idtr);
   print_u16_nl("idtr.limit:   ", idtr.limit);
   print_u64_nl("idtr.address: ", idtr.address);
 
@@ -116,7 +116,7 @@ void test_interrupts() {
   }
 
   descriptor_ptr gdtr;
-  x86_sgdt(&gdtr);
+  store_gdtr(&gdtr);
   print_u16_nl("gdtr.limit:   ", gdtr.limit);
   print_u64_nl("gdtr.address: ", gdtr.address);
 
@@ -141,12 +141,12 @@ void test_interrupts() {
   print_gate("invalid opcode gate:", &idt[6]);
 
   setidtr();
-  x86_sidt(&idtr);
+  store_idtr(&idtr);
   print_u64_nl("sizeof(idt):         ", sizeof(idt));
   print_u64_nl("sizeof(typeof(idt)): ", sizeof(__typeof__(idt[0])));
   print_u64_nl("ARRAY_COUNT(idt):    ", ARRAY_COUNT(idt));
-  print_uptr_nl("idt[0]:              ", &idt[0]);
-  print_uptr_nl("idt[last]:           ", &idt[ARRAY_COUNT(idt)]);
+  print_uptr_nl("&idt[0]:             ", &idt[0]);
+  print_uptr_nl("&idt[last]:          ", &idt[ARRAY_COUNT(idt) - 1]);
   print_u16_nl("idtr.limit:          ", idtr.limit);
   print_u64_nl("idtr.address:        ", idtr.address);
 }

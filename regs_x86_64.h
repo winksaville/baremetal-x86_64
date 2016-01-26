@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef X86_64_REGS_H
-#define X86_64_REGS_H
+#ifndef REGS_X86_64_H
+#define REGS_X86_64_H
 
 #include "inttypes.h"
 

@@ -15,7 +15,7 @@
  */
 
 #include "inttypes.h"
-#include "x86_64_regs.h"
+#include "regs_x86_64.h"
 #include "print.h"
 #include "test_multiboot.h"
 #include "test_interrupts.h"
@@ -49,13 +49,13 @@ void kmain(void* mb_info) {
   print_u16_nl("ss=", read_x86_ss());
   print_u16_nl("es=", read_x86_es());
 
-  write_x86_ds(0x00);
-  write_x86_ss(0x00);
-  write_x86_es(0x00);
+  //write_x86_ds(0x00);
+  //write_x86_ss(0x00);
+  //write_x86_es(0x00);
 
-  print_u16_nl("ds=", read_x86_ds());
-  print_u16_nl("ss=", read_x86_ss());
-  print_u16_nl("es=", read_x86_es());
+  //print_u16_nl("ds=", read_x86_ds());
+  //print_u16_nl("ss=", read_x86_ss());
+  //print_u16_nl("es=", read_x86_es());
 
   test_multiboot(mb_info);
   test_interrupts();

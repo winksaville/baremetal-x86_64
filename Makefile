@@ -74,9 +74,9 @@ print.o: print.c inttypes.h print.h
 
 test_multiboot.o: test_multiboot.c test_multiboot.h inttypes.h print.h
 
-test_interrupts.o: test_interrupts.c x86_64_descriptors.h inttypes.h test_interrupts.h print.h
+test_interrupts.o: test_interrupts.c descriptors_x86_64.h inttypes.h test_interrupts.h print.h
 
-kmain.o: kmain.c x86_64_regs.h x86_64_descriptors.h inttypes.h test_multiboot.h test_interrupts.h print.h
+kmain.o: kmain.c regs_x86_64.h descriptors_x86_64.h inttypes.h test_multiboot.h test_interrupts.h print.h
 
 iso.img: kmain.elf grub.cfg
 	mkdir -p isofiles/boot/grub

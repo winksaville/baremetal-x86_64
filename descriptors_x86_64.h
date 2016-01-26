@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#ifndef X86_64_DESCRIPTORS_h
-#define X86_64_DESCRIPTORS_h
+#ifndef DESCRIPTORS_X86_64_h
+#define DESCRIPTORS_X86_64_h
 
 #include "inttypes.h"
 
 /* Pointer to Global Descriptor Table  Interrupt Descriptor Table */
 struct descriptor_ptr {
   u16 limit;
-  u64 address;
+  uptr address;
 } __attribute__((__packed__));
 
 _Static_assert(sizeof(struct descriptor_ptr) == 10,
@@ -32,22 +32,22 @@ _Static_assert(sizeof(struct descriptor_ptr) == 10,
 typedef struct descriptor_ptr descriptor_ptr;
 
 /** Load the IDT register from desc_ptr */
-static __inline__ void x86_lidt(descriptor_ptr *desc_ptr) {
+static __inline__ void load_idtr(descriptor_ptr* desc_ptr) {
   __asm__ volatile("lidt %0" :: "m" (*desc_ptr));
 }
 
 /** Store the IDT register to desc_ptr */
-static __inline__ void x86_sidt(descriptor_ptr *desc_ptr) {
+static __inline__ void store_idtr(descriptor_ptr* desc_ptr) {
   __asm__ volatile("sidt %0" : "=m" (*desc_ptr));
 }
 
 /** Load the GDT register from desc_ptr */
-static __inline__ void x86_lgdt(descriptor_ptr *desc_ptr) {
+static __inline__ void load_gdtr(descriptor_ptr* desc_ptr) {
   __asm__ volatile("lgdt %0" :: "m" (*desc_ptr));
 }
 
 /** Store the GDT register to desc_ptr */
-static __inline__ void x86_sgdt(descriptor_ptr *desc_ptr) {
+static __inline__ void store_gdtr(descriptor_ptr* desc_ptr) {
   __asm__ volatile("sgdt %0" : "=m" (*desc_ptr));
 }
 

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#ifndef INTERRUPTS_H
-#define INTERRUPTS_H
+#ifndef GDT_H
+#define GDT_H
 
-void initialize_intr_trap_table();
+void initialize_gdt();
 
 #endif

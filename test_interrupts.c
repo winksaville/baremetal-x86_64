@@ -69,13 +69,6 @@ void test_interrupts() {
   gate.offset_hi = GATE_OFFSET_HI(offset);
   print_gate("gate specific initialization:", &gate);
 
-  print_str_nl("idt");
-  print_u64_nl(" sizeof(idt): ", sizeof(idt));
-  print_u64_nl(" sizeof(typeof(idt)): ", sizeof(__typeof__(idt[0])));
-  print_u64_nl(" ARRAY_COUNT(idt): ", ARRAY_COUNT(idt));
-  print_uptr_nl(" &idt[0]: ", &idt[0]);
-  print_uptr_nl(" &idt[last]: ", &idt[ARRAY_COUNT(idt) - 1]);
-
   initialize_intr_trap_table();
   print_str_nl("idtr after initialization");
   store_idtr(&idtr);

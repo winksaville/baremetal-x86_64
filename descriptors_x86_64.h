@@ -229,7 +229,7 @@ typedef struct seg_desc seg_desc;
 })
 
 /** Return the bits for seg_desc.seg_limit_hi */
-#define SEG_DESC_SEG_LIMIT_OFFSET_HI(addr) ({ \
+#define SEG_DESC_SEG_LIMIT_HI(addr) ({ \
   u64 r = ((u64)(addr) >> 16) & 0xFFFFFFFFFFFFLL; \
   r; \
 })
@@ -247,7 +247,7 @@ typedef struct seg_desc seg_desc;
 })
 
 /** Return the bits for seg_desc.base_addr_hi */
-#define SEG_DESC_SEG_BASE_ADDR_HI(addr) ({ \
+#define SEG_DESC_BASE_ADDR_HI(addr) ({ \
   u64 r = ((u64)(addr) >> 24) & 0xFF; \
   r; \
 })
@@ -300,10 +300,13 @@ typedef void (intr_handler)(struct intr_frame* frame);
 
 typedef void (expt_handler) (struct intr_frame* frame, u64 error_code);
 
-void setidt_intr(intr_trap_gate idt[], u64 idx, intr_handler ih);
+void set_intr_gate(intr_trap_gate* idt, intr_handler ih);
 
-void setidt_expt(intr_trap_gate idt[], u64 idx, expt_handler eh);
+void set_expt_gate(intr_trap_gate* idt, expt_handler eh);
 
-void setidtr(intr_trap_gate idt[], u32 count);
+void set_idtr(intr_trap_gate idt[], u32 count);
+
+void set_seg_desc(seg_desc* sd, u32 seg_limit, u64 base_addr, u8 type,
+    u8 s, u8 dpl, u8 p, u8 avl, u8 l, u8 d_b, u8 g);
 
 #endif

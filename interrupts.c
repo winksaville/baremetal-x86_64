@@ -16,38 +16,44 @@
 
 #include "inttypes.h"
 #include "print.h"
+#include "regs_x86_64.h"
 #include "descriptors_x86_64.h"
 #include "descriptors_x86_64_print.h"
 
 /* Interrupt Descriptor Table */
-intr_trap_gate idt[256];
+static intr_trap_gate idt[256];
 
 __attribute__ ((__interrupt__, __used__))
-void intr_undefined(struct intr_frame *frame) {
+static void intr_undefined(struct intr_frame *frame) {
   print_intr_frame("intr_undefined:", frame);
 }
 
 __attribute__ ((__interrupt__, __used__))
-void expt_undefined(struct intr_frame *frame, u64 error_code) {
+static void expt_undefined(struct intr_frame *frame, u64 error_code) {
   print_intr_frame("expt_undefined:", frame);
   print_u64_nl(" error_code=", error_code);
 }
 
 __attribute__ ((__interrupt__, __used__))
-void expt_invalid_opcode(struct intr_frame *frame, u64 error_code) {
+static void expt_invalid_opcode(struct intr_frame *frame, u64 error_code) {
   print_intr_frame("expt_invalid_opcode:", frame);
   print_u64_nl(" error_code=", error_code);
 }
 
 void initialize_intr_trap_table() {
-  // Initialize to undefined intr
+  // Initialize TSS entry in GDT
+  descriptor_ptr desc_ptr;
+  store_gdtr(&desc_ptr);
+
+  
+  // Initialize all of the entires to intr_undefined
   for (u64 idx = 0; idx < ARRAY_COUNT(idt); idx++) {
-    setidt_intr(idt, idx, intr_undefined);
+    set_intr_gate(&idt[idx], intr_undefined);
   }
 
   // Initialize some exceptions
-  setidt_expt(idt, 6, expt_invalid_opcode);
+  set_expt_gate(&idt[6], expt_invalid_opcode);
 
   // set the idtr
-  setidtr(idt, ARRAY_COUNT(idt));
+  set_idtr(idt, ARRAY_COUNT(idt));
 }

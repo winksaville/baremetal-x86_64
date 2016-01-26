@@ -15,6 +15,7 @@
  */
 
 #include "inttypes.h"
+#include "gdt.h"
 #include "regs_x86_64.h"
 #include "print.h"
 #include "descriptors_x86_64_print.h"
@@ -44,7 +45,9 @@ void abort() {
 
 __attribute__ ((__noreturn__))
 void kmain(void* mb_info) {
-  (void)mb_info;
+  test_multiboot(mb_info);
+
+  initialize_gdt();
 
   print_u16_nl("ds=", read_ds());
   print_u16_nl("ss=", read_ss());
@@ -72,7 +75,6 @@ void kmain(void* mb_info) {
   print_seg_desc("global data seg:", &desc_ptr.sd[2]);
   print_tss_ldt_desc("global tss:", (tss_ldt_desc*)&desc_ptr.sd[3]);
 
-  test_multiboot(mb_info);
   test_interrupts();
 
   abort();

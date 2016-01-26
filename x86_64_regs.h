@@ -20,36 +20,36 @@
 #include "inttypes.h"
 
 /** Write data segment */
-static __inline__ void x86_write_ds(u16 ds) {
+static __inline__ void write_x86_ds(u16 ds) {
   __asm__ volatile("movw %0, %%ds;" :: "r" (ds));
 }
 
 /** Read data segment */
-static __inline__ u16 x86_read_ds(void) {
+static __inline__ u16 read_x86_ds(void) {
   u16 ds;
   __asm__ volatile("movw %%ds, %0;" : "=r" (ds));
   return ds;
 }
 
 /** Write stack segment */
-static __inline__ void x86_write_ss(u16 ss) {
+static __inline__ void write_x86_ss(u16 ss) {
   __asm__ volatile("movw %0, %%ss;" :: "r" (ss));
 }
 
 /** Read stack segment */
-static __inline__ u16 x86_read_ss(void) {
+static __inline__ u16 read_x86_ss(void) {
   u16 ss;
   __asm__ volatile("movw %%ss, %0;" : "=r" (ss));
   return ss;
 }
 
 /** Write extra segment */
-static __inline__ void x86_write_es(u16 es) {
+static __inline__ void write_x86_es(u16 es) {
   __asm__ volatile("movw %0, %%es;" :: "r" (es));
 }
 
 /** Read extra segment */
-static __inline__ u16 x86_read_es(void) {
+static __inline__ u16 read_x86_es(void) {
   u16 es;
   __asm__ volatile("movw %%es, %0;" : "=r" (es));
   return es;

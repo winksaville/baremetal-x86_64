@@ -45,17 +45,17 @@ __attribute__ ((__noreturn__))
 void kmain(void* mb_info) {
   (void)mb_info;
 
-  print_u16_nl("ds=", x86_read_ds());
-  print_u16_nl("ss=", x86_read_ss());
-  print_u16_nl("es=", x86_read_es());
+  print_u16_nl("ds=", read_x86_ds());
+  print_u16_nl("ss=", read_x86_ss());
+  print_u16_nl("es=", read_x86_es());
 
-  x86_write_ds(0x00);
-  x86_write_ss(0x00);
-  x86_write_es(0x00);
+  write_x86_ds(0x00);
+  write_x86_ss(0x00);
+  write_x86_es(0x00);
 
-  print_u16_nl("ds=", x86_read_ds());
-  print_u16_nl("ss=", x86_read_ss());
-  print_u16_nl("es=", x86_read_es());
+  print_u16_nl("ds=", read_x86_ds());
+  print_u16_nl("ss=", read_x86_ss());
+  print_u16_nl("es=", read_x86_es());
 
   test_multiboot(mb_info);
   test_interrupts();

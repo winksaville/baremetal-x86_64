@@ -16,6 +16,7 @@
 
 #include "inttypes.h"
 #include "print.h"
+#include "regs_x86_64.h"
 #include "descriptors_x86_64.h"
 #include "descriptors_x86_64_print.h"
 
@@ -49,6 +50,6 @@ void setidtr(intr_trap_gate idt[], u32 count) {
   descriptor_ptr dp;
   dp.limit = (u16)(((uptr)&idt[count] - (uptr)&idt[0] - 1)
       & 0xFFFF);
-  dp.address = (uptr)&idt[0];
+  dp.itg = &idt[0];
   load_idtr(&dp);
 }

@@ -19,38 +19,6 @@
 
 #include "inttypes.h"
 
-/* Pointer to Global Descriptor Table  Interrupt Descriptor Table */
-struct descriptor_ptr {
-  u16 limit;
-  uptr address;
-} __attribute__((__packed__));
-
-_Static_assert(sizeof(struct descriptor_ptr) == 10,
-    L"struct descriptor_ptr != 10");
-
-/** Descriptor Pointer typedef */
-typedef struct descriptor_ptr descriptor_ptr;
-
-/** Load the IDT register from desc_ptr */
-static __inline__ void load_idtr(descriptor_ptr* desc_ptr) {
-  __asm__ volatile("lidt %0" :: "m" (*desc_ptr));
-}
-
-/** Store the IDT register to desc_ptr */
-static __inline__ void store_idtr(descriptor_ptr* desc_ptr) {
-  __asm__ volatile("sidt %0" : "=m" (*desc_ptr));
-}
-
-/** Load the GDT register from desc_ptr */
-static __inline__ void load_gdtr(descriptor_ptr* desc_ptr) {
-  __asm__ volatile("lgdt %0" :: "m" (*desc_ptr));
-}
-
-/** Store the GDT register to desc_ptr */
-static __inline__ void store_gdtr(descriptor_ptr* desc_ptr) {
-  __asm__ volatile("sgdt %0" : "=m" (*desc_ptr));
-}
-
 /**
  * Interrupt or Trap Gate.
  *
@@ -135,6 +103,84 @@ enum {
 };
 
 /**
+ * TSS and LDT Descriptor
+ *
+ * See "Intel 64 and IA-32 Architectures Software Developer's Manual"
+ * Volume 3 chapter 7.2.3 "TSS Descriptor in 64-bit mode"
+ * Figure 7-4. Format of TSS and LDT Descriptors in 64-bit Mode
+ */
+struct tss_ldt_desc {
+  u64 seg_limit_lo:16;
+  u64 base_addr_lo:24;
+  u64 type:4;
+  u64 unused_1:1;
+  u64 dpl:2;
+  u64 p:1;
+  u64 seg_limit_hi:4;
+  u64 avl:1;
+  u64 unused_2:2;
+  u64 g:1;
+  u64 base_addr_hi:40;
+  u64 unused_3:32;
+} __attribute__((__packed__));
+
+_Static_assert(sizeof(struct tss_ldt_desc) == 16,
+    L"TSS/LDT segment_descriptor is not 16 bytes");
+
+typedef struct tss_ldt_desc tss_ldt_desc;
+
+#define INITIALIZER_TSS_LDT_DESC { \
+  .seg_limit_lo = 0, \
+  .base_addr_lo = 0, \
+  .type = 0, \
+  .unused_1 = 0, \
+  .dpl = 0, \
+  .p = 0, \
+  .seg_limit_hi = 0, \
+  .avl = 0, \
+  .unused_2 = 0, \
+  .g = 0, \
+  .base_addr_hi = 0, \
+  .unused_3 = 0, \
+}
+
+/** Return the bits for tss_ldt_desc.seg_limit_lo */
+#define TSS_LDT_DESC_SEG_LIMIT_LO(sl) ({ \
+  u64 r = (((u64)(sl) >> 0) & 0xFFFF); \
+  r; \
+})
+
+/** Return the bits for tss_ldt_desc.seg_limit_hi */
+#define TSS_LDT_DESC_SEG_LIMIT_HI(sl) ({ \
+  u64 r = ((u64)(sl) >> 16) & 0xF; \
+  r; \
+})
+
+/** Return tss_ldt_desc.seg_limit as a u64 */
+#define GET_TSS_LDT_DESC_SEG_LIMIT(desc) ({ \
+  u64 r = (u64)((((uptr)(desc).seg_limit_hi) << 16) | (u64)((desc).seg_limit_lo)); \
+  r; \
+})
+
+/** Return the bits for tss_ldt_desc.base_addr_lo */
+#define TSS_LDT_DESC_BASE_ADDR_LO(addr) ({ \
+  u64 r = (((u64)(addr) >> 16) & 0xFFFFFF); \
+  r; \
+})
+
+/** Return the bits for tss_ldt_desc.base_addr_hi */
+#define TSS_LDT_DESC_SEG_BASE_ADDR_HI(addr) ({ \
+  u64 r = ((u64)(addr) >> 16) & 0xFFFFFFFFFFLL; \
+  r; \
+})
+
+/** Return tss_ldt_desc.base_addr as a u64 */
+#define GET_TSS_LDT_DESC_BASE_ADDR(desc) ({ \
+  u64 r = (u64)((((uptr)(desc).base_addr_hi) << 24) | (u64)((desc).base_addr_lo)); \
+  r; \
+})
+
+/**
  * Segment Descriptor
  *
  * See "Intel 64 and IA-32 Architectures Software Developer's Manual"
@@ -157,7 +203,7 @@ struct seg_desc {
 } __attribute__((__packed__));
 
 _Static_assert(sizeof(struct seg_desc) == 8,
-    L"segment_descriptor not 8 bytes");
+    L"segment_descriptor is not 8 bytes");
 
 typedef struct seg_desc seg_desc;
 
@@ -193,6 +239,47 @@ typedef struct seg_desc seg_desc;
   u64 r = (u64)((((uptr)(sd).seg_limit_hi) << 16) | (u64)((sd).seg_limit_lo)); \
   r; \
 })
+
+/** Return the bits for seg_desc.base_addr_lo */
+#define SEG_DESC_BASE_ADDR_LO(addr) ({ \
+  u64 r = (((u64)(addr) >> 16) & 0xFFFFFF); \
+  r; \
+})
+
+/** Return the bits for seg_desc.base_addr_hi */
+#define SEG_DESC_SEG_BASE_ADDR_HI(addr) ({ \
+  u64 r = ((u64)(addr) >> 24) & 0xFF; \
+  r; \
+})
+
+/** Return seg_desc.base_addr as a u64 */
+#define GET_SEG_DESC_BASE_ADDR(desc) ({ \
+  u64 r = (u64)((((uptr)(desc).base_addr_hi) << 24) | (u64)((desc).base_addr_lo)); \
+  r; \
+})
+
+/* Pointer to Global Descriptor Table and Interrupt Descriptor Table */
+struct descriptor_ptr {
+    u16 unused[3];      // Align descriptor_ptr.limit to an odd u16 boundary
+                        // so descriptor_ptr.address is on a u64 boundary.
+                        // This is for better performance and for user mode
+                        // it avoids an alignment check fault. See the last
+                        // paragraph of "Intel 64 and IA-32 Architectures
+                        // Software Developer's Manual" Volume 3 chapter 3.5.1
+                        // "Segment Descriptor Tables".
+    u16 limit;
+    union {
+      uptr address;
+      intr_trap_gate* itg;
+      seg_desc* sd;
+    };
+} __attribute__((__packed__, __aligned__(16)));
+
+_Static_assert(sizeof(struct descriptor_ptr) == 16,
+    L"struct descriptor_ptr != 16");
+
+/** Descriptor Pointer typedef */
+typedef struct descriptor_ptr descriptor_ptr;
 
 /**
  * Interrupt stack frame

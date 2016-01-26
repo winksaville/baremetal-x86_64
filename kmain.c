@@ -17,6 +17,7 @@
 #include "inttypes.h"
 #include "regs_x86_64.h"
 #include "print.h"
+#include "descriptors_x86_64_print.h"
 #include "test_multiboot.h"
 #include "test_interrupts.h"
 
@@ -45,17 +46,31 @@ __attribute__ ((__noreturn__))
 void kmain(void* mb_info) {
   (void)mb_info;
 
-  print_u16_nl("ds=", read_x86_ds());
-  print_u16_nl("ss=", read_x86_ss());
-  print_u16_nl("es=", read_x86_es());
+  print_u16_nl("ds=", read_ds());
+  print_u16_nl("ss=", read_ss());
+  print_u16_nl("es=", read_es());
+  print_u16_nl("tr=", read_tr());
 
-  //write_x86_ds(0x00);
-  //write_x86_ss(0x00);
-  //write_x86_es(0x00);
+  write_ds(0x00);
+  write_ss(0x00);
+  write_es(0x00);
+  write_tr(0x00);
 
-  //print_u16_nl("ds=", read_x86_ds());
-  //print_u16_nl("ss=", read_x86_ss());
-  //print_u16_nl("es=", read_x86_es());
+  print_u16_nl("ds=", read_ds());
+  print_u16_nl("ss=", read_ss());
+  print_u16_nl("es=", read_es());
+  print_u16_nl("tr=", read_tr());
+
+  descriptor_ptr desc_ptr;
+  store_gdtr(&desc_ptr);
+  print_uptr_nl("&desc_ptr=", &desc_ptr);
+  print_uptr_nl("&desc_ptr.limit", &desc_ptr.limit);
+  print_uptr_nl("&desc_ptr.address", &desc_ptr.address);
+  print_u16_nl("desc_ptr.limit=", desc_ptr.limit);
+  print_u64_nl("desc_ptr.address=", desc_ptr.address);
+  print_seg_desc("global code seg:", &desc_ptr.sd[1]);
+  print_seg_desc("global data seg:", &desc_ptr.sd[2]);
+  print_tss_ldt_desc("global tss:", (tss_ldt_desc*)&desc_ptr.sd[3]);
 
   test_multiboot(mb_info);
   test_interrupts();

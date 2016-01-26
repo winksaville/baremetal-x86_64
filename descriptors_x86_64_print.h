@@ -24,4 +24,8 @@ void print_intr_frame(char* str, intr_frame* frame);
 
 void print_gate(char *str, intr_trap_gate* gate);
 
+void print_tss_ldt_desc(char *str, tss_ldt_desc* desc);
+
+void print_seg_desc(char *str, seg_desc* desc);
+
 #endif

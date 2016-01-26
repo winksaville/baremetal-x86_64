@@ -16,6 +16,7 @@
 
 #include "inttypes.h"
 #include "print.h"
+#include "regs_x86_64.h"
 #include "descriptors_x86_64.h"
 #include "interrupts.h"
 #include "descriptors_x86_64_print.h"
@@ -26,20 +27,20 @@ void test_interrupts() {
     .address = 0x1234567812345678,
   };
 
-  print_int_nl("0:                ", 0);
-  print_int_nl("1:                ", 1);
-  print_int_nl("7F..FF:           ", 0x7FFFFFFFFFFFFFFFLL);
-  print_int_nl("FF..FF:           ", 0xFFFFFFFFFFFFFFFFLL);
-  print_int_nl("-1:               ", -1);
+  print_int_nl("0: ", 0);
+  print_int_nl("1: ", 1);
+  print_int_nl("7F..FF: ", 0x7FFFFFFFFFFFFFFFLL);
+  print_int_nl("FF..FF: ", 0xFFFFFFFFFFFFFFFFLL);
+  print_int_nl("-1: ", -1);
 
   print_int_nl("sizeof(desc_ptr): ", sizeof(desc_ptr));
-  print_u16_nl("desc_ptr.limit:   ", desc_ptr.limit);
+  print_u16_nl("desc_ptr.limit: ", desc_ptr.limit);
   print_u64_nl("desc_ptr.address: ", desc_ptr.address);
   load_idtr(&desc_ptr);
 
   descriptor_ptr idtr;
   store_idtr(&idtr);
-  print_u16_nl("idtr.limit:   ", idtr.limit);
+  print_u16_nl("idtr.limit: ", idtr.limit);
   print_u64_nl("idtr.address: ", idtr.address);
 
   if (idtr.limit != desc_ptr.limit) {
@@ -51,12 +52,12 @@ void test_interrupts() {
 
   descriptor_ptr gdtr;
   store_gdtr(&gdtr);
-  print_u16_nl("gdtr.limit:   ", gdtr.limit);
+  print_u16_nl("gdtr.limit: ", gdtr.limit);
   print_u64_nl("gdtr.address: ", gdtr.address);
 
   uptr	offset = 0x1234567812345678;
   intr_trap_gate gate = INITIALIZER_INTR_TRAP_GATE;
-  print_int_nl("sizeof(gate):   ", sizeof(gate));
+  print_int_nl("sizeof(gate): ", sizeof(gate));
   print_gate("gate default initialization:", &gate);
 
   gate.offset_lo = GATE_OFFSET_LO(offset);
@@ -68,15 +69,16 @@ void test_interrupts() {
   gate.offset_hi = GATE_OFFSET_HI(offset);
   print_gate("gate specific initialization:", &gate);
 
-  initialize_intr_trap_table();
+  print_str_nl("idt");
+  print_u64_nl(" sizeof(idt): ", sizeof(idt));
+  print_u64_nl(" sizeof(typeof(idt)): ", sizeof(__typeof__(idt[0])));
+  print_u64_nl(" ARRAY_COUNT(idt): ", ARRAY_COUNT(idt));
+  print_uptr_nl(" &idt[0]: ", &idt[0]);
+  print_uptr_nl(" &idt[last]: ", &idt[ARRAY_COUNT(idt) - 1]);
 
-  store_idtr(&idtr);
-  print_u64_nl("sizeof(idt):         ", sizeof(idt));
-  print_u64_nl("sizeof(typeof(idt)): ", sizeof(__typeof__(idt[0])));
+  initialize_intr_trap_table();
   print_str_nl("idtr after initialization");
-  print_u64_nl(" ARRAY_COUNT(idt):    ", ARRAY_COUNT(idt));
-  print_uptr_nl( "&idt[0]:             ", &idt[0]);
-  print_uptr_nl(" &idt[last]:          ", &idt[ARRAY_COUNT(idt) - 1]);
-  print_u16_nl(" idtr.limit:          ", idtr.limit);
-  print_u64_nl(" idtr.address:        ", idtr.address);
+  store_idtr(&idtr);
+  print_u16_nl(" idtr.limit: ", idtr.limit);
+  print_uptr_nl(" idtr.itg: ", idtr.itg);
 }

@@ -40,7 +40,7 @@ LK=$(LK_FLAVOR)-elf-gcc
 # for now its assumed that there is no floating.
 CFLAGS:=-m$(BITNESS) -std=c11 -ffreestanding -O2 -mno-red-zone -static -Wall -Wextra -nostdlib -nostartfiles -nodefaultlibs
 
-OBJ_FILES:=mb2.o kmain.o print.o test_multiboot.o test_interrupts.o
+OBJ_FILES:=mb2.o kmain.o print.o interrupts.o descriptors_x86_64.o descriptors_x86_64_print.o test_multiboot.o test_interrupts.o
 
 .PHONY: all
 all: kmain.elf kmain.gas.elf
@@ -72,11 +72,23 @@ boot.o: boot.asm
 
 print.o: print.c inttypes.h print.h
 
+interrupts.o: interrupts.c \
+  interrupts.h descriptors_x86_64.h descriptors_x86_64_print.h inttypes.h
+
+descriptors_x86_64.o: descriptors_x86_64.c \
+  descriptors_x86_64.h inttypes.h test_interrupts.h
+
+descriptors_x86_64_print.o: descriptors_x86_64.c \
+  descriptors_x86_64_print.h descriptors_x86_64.h inttypes.h print.h
+
 test_multiboot.o: test_multiboot.c test_multiboot.h inttypes.h print.h
 
-test_interrupts.o: test_interrupts.c descriptors_x86_64.h inttypes.h test_interrupts.h print.h
+test_interrupts.o: test_interrupts.c \
+  descriptors_x86_64.h descriptors_x86_64_print.h inttypes.h \
+  test_interrupts.h print.h
 
-kmain.o: kmain.c regs_x86_64.h descriptors_x86_64.h inttypes.h test_multiboot.h test_interrupts.h print.h
+kmain.o: kmain.c inttypes.h regs_x86_64.h descriptors_x86_64.h \
+  test_multiboot.h test_interrupts.h print.h
 
 iso.img: kmain.elf grub.cfg
 	mkdir -p isofiles/boot/grub

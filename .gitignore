@@ -3,13 +3,8 @@ crosstool-ng/
 gcc/
 isofiles/
 isofiles.gas/
-iso.img
-iso.gas.img
-kmain.elf.txt
-kmain.gas.elf.txt
-kmain.o.txt
-print.o.txt
-test_multiboot.o.txt
-test_interrupts.o.txt
+*.img
+*.o.txt
+*.elf.txt
 *.o
 *.elf

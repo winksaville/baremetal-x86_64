@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Wink Saville
+ * Copyright 2016 Wink Saville
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,14 @@
  * limitations under the License.
  */
 
-#ifndef INTTYPES_H
+#ifndef DESCRIPTORS_X86_64_PRINT_H
+#define DESCRIPTORS_X86_64_PRINT_H
 
-typedef unsigned char       i8;
-typedef unsigned short int  i16;
-typedef unsigned int        i32;
-typedef unsigned long       i64;
+#include "inttypes.h"
+#include "descriptors_x86_64.h"
 
-typedef unsigned char       u8;
-typedef unsigned short int  u16;
-typedef unsigned int        u32;
-typedef unsigned long       u64;
+void print_intr_frame(char* str, intr_frame* frame);
 
-typedef u64                 uptr;
-
-#define NULL 0
-#define UNUSED(x) ((void)x)
-#define ARRAY_COUNT(__array) (sizeof(__array)/sizeof(__typeof__(__array[0])))
-
+void print_gate(char *str, intr_trap_gate* gate);
 
 #endif

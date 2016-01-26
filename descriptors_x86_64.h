@@ -213,8 +213,10 @@ typedef void (intr_handler)(struct intr_frame* frame);
 
 typedef void (expt_handler) (struct intr_frame* frame, u64 error_code);
 
-void setidt_intr(u64 idx, intr_handler ih);
+void setidt_intr(intr_trap_gate idt[], u64 idx, intr_handler ih);
 
-void setidt_expt(u64 idx, expt_handler eh);
+void setidt_expt(intr_trap_gate idt[], u64 idx, expt_handler eh);
+
+void setidtr(intr_trap_gate idt[], u32 count);
 
 #endif

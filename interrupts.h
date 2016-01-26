@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Wink Saville
+ * Copyright 2016 Wink Saville
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,22 @@
  * limitations under the License.
  */
 
-#ifndef INTTYPES_H
+#ifndef INTERRUPTS_H
+#define INTERRUPTS_H
 
-typedef unsigned char       i8;
-typedef unsigned short int  i16;
-typedef unsigned int        i32;
-typedef unsigned long       i64;
+#include "inttypes.h"
+#include "descriptors_x86_64.h"
 
-typedef unsigned char       u8;
-typedef unsigned short int  u16;
-typedef unsigned int        u32;
-typedef unsigned long       u64;
+/* Interrupt Descriptor Table */
+#define IDT_COUNT 256
+extern intr_trap_gate idt[IDT_COUNT];
 
-typedef u64                 uptr;
+void intr_undefined(struct intr_frame *frame);
 
-#define NULL 0
-#define UNUSED(x) ((void)x)
-#define ARRAY_COUNT(__array) (sizeof(__array)/sizeof(__typeof__(__array[0])))
+void expt_undefined(struct intr_frame *frame, u64 error_code);
 
+void expt_invalid_opcode(struct intr_frame *frame, u64 error_code);
+
+void initialize_intr_trap_table();
 
 #endif

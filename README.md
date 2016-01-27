@@ -1,10 +1,15 @@
 # baremetal-x86_64
 
-A a minimal bare metal program that runs on qemu-system-x86_64
-it outputs "OK\n" to a COM1 at 0x3f8. This is based on Philipp
-Opperman's blog_os initialization code I've ported to [baremetal-po-x86_64]
-(https://github.com/winksaville/baremetal-po-x86_64).
-The big difference is I'm porting as much as possible to C.
+A a bare metal program that runs on qemu-system-x86_64
+I use it for experimentation, the initial commit only output
+"OK" to the serial port it now does quite a bit more.
+
+It is based on Philipp Opperman's [boot_os]
+(https://github.com/phil-opp/blog_os/tree/multiboot_bootstrap/src/arch/x86_64)
+and his blog post [A minimal x86 kernel](http://os.phil-opp.com/multiboot-kernel.html).
+I've ported his blog_os code to my [baremetal-po-x86_64]
+(https://github.com/winksaville/baremetal-po-x86_64) with a simplified
+directory structure which is very much minimal.
 
 Philipp also references Remzi H. and Andrea C. Arpaci-Dusseau book
 [Operating Systems:Three Easy Pieces](http://pages.cs.wisc.edu/~remzi/OSTEP/)
@@ -58,13 +63,8 @@ cp ../config.x86_64-unknown-elf .config
 ct-ng build
 cd ..
 ```
-Build and run nasm version
+Build and run
 ---
 ```
 make run
-```
-Build and run gas version
----
-```
-make run.gas
 ```

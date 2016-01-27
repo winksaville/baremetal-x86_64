@@ -45,14 +45,10 @@ OBJ_FILES:=mb2.o kmain.o gdt.o print.o interrupts.o descriptors_x86_64.o \
   abort.o
 
 .PHONY: all
-all: kmain.elf kmain.gas.elf
+all: kmain.elf kmain.elf
 
 kmain.elf: boot.o $(OBJ_FILES) link.ld
 	$(LK) $(CFLAGS) -Wl,-n,-T,link.ld -o $@ boot.o $(OBJ_FILES) -lgcc
-	objdump -x -d -s $@ > $@.txt
-
-kmain.gas.elf: boot.gas.o $(OBJ_FILES) link.ld
-	$(LK) $(CFLAGS) -Wl,-n,-T,link.ld -o $@ boot.gas.o $(OBJ_FILES) -lgcc
 	#objdump -x -d -s -mi386 $@ > $@.txt
 	objdump -x -d -s $@ > $@.txt
 
@@ -68,9 +64,7 @@ kmain.gas.elf: boot.gas.o $(OBJ_FILES) link.ld
 
 mb2.o: mb2.S
 
-boot.gas.o: boot.gas.S
-
-boot.o: boot.asm
+boot.o: boot.S
 
 abort.o: abort.c abort.h
 
@@ -99,18 +93,8 @@ kmain.o: kmain.c abort.h inttypes.h gdt.h regs_x86_64.h descriptors_x86_64.h \
 iso.img: kmain.elf grub.cfg
 	mkdir -p isofiles/boot/grub
 	cp kmain.elf isofiles/boot/
-	cp grub.cfg isofiles/boot/grub
+	cp grub.cfg isofiles/boot/grub/grub.cfg
 	grub-mkrescue -o $@ isofiles 2> /dev/null
-
-iso.gas.img: kmain.gas.elf grub.gas.cfg
-	mkdir -p isofiles.gas/boot/grub
-	cp kmain.gas.elf isofiles.gas/boot/
-	cp grub.gas.cfg isofiles.gas/boot/grub/grub.cfg
-	grub-mkrescue -o $@ isofiles.gas 2> /dev/null
-
-.PHONY: run.gas
-run.gas: iso.gas.img
-	qemu-system-x86_64 -nographic -no-reboot -drive format=raw,file=$<
 
 .PHONY: run
 run: iso.img
@@ -123,10 +107,6 @@ run: iso.img
 dbg: iso.img
 	qemu-system-x86_64 -s -S -nographic -no-reboot -drive format=raw,file=$<
 
-.PHONY: dbg.gas
-dbg.gas: iso.gas.img
-	qemu-system-x86_64 -s -S -nographic -no-reboot -drive format=raw,file=$<
-
 .PHONY: clean
 clean:
 	rm -rf $(OBJ_FILES)
@@ -136,4 +116,3 @@ clean:
 	rm -rf *.elf.txt
 	rm -rf *.img
 	rm -rf isofiles
-	rm -rf isofiles.gas

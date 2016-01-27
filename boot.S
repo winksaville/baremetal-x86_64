@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
+/**
+ * A port of https://github.com/phil-opp/blog_os/tree/multiboot_bootstrap/src/arch/x86_64/boot.asm
+ * from nasm to gas (gnu assembler).
+ */
+
   // Global Descriptor Table
   .section .rodata
   .align 4

@@ -39,17 +39,19 @@ static global_descriptor_table gdt;
 void initialize_gdt() {
   // Print the current values
   descriptor_ptr desc_ptr;
-  store_gdtr(&desc_ptr);
   print_uptr_nl("&desc_ptr=", &desc_ptr);
   print_uptr_nl("&desc_ptr.limit=", &desc_ptr.limit);
   print_uptr_nl("&desc_ptr.address=", &desc_ptr.address);
-  print_u16_nl("desc_ptr.limit=", desc_ptr.limit);
-  print_u64_nl("desc_ptr.address=", desc_ptr.address);
+
+  // Dump current gdt
+  store_gdtr(&desc_ptr);
+  print_u16_nl("cur gdt limit=", desc_ptr.limit);
+  print_u64_nl("cur gdt address=", desc_ptr.address);
   print_seg_desc("gdt[0] zero:", &desc_ptr.sd[0]);
   print_seg_desc("gdt[1] code seg:", &desc_ptr.sd[1]);
   print_seg_desc("gdt[2] data seg:", &desc_ptr.sd[2]);
 
-  // Setup our gdt
+  // Initialize new gdt
   print_uptr_nl("&gdt=", &gdt);
   print_int_nl("sizeof(global_descriptor_table)=",
       sizeof(global_descriptor_table));
@@ -75,4 +77,12 @@ void initialize_gdt() {
   print_seg_desc("gdt.code:", &gdt.code);
   print_seg_desc("gdt.data:", &gdt.data);
   print_tss_ldt_desc("gdt.tss:", &gdt.tss);
+
+  // Update to new gdt
+  desc_ptr.limit = sizeof(gdt) - 1;
+  desc_ptr.sd = &gdt.zero;
+  load_gdtr(&desc_ptr);
+  store_gdtr(&desc_ptr);
+  print_u16_nl("new gdt limit=", desc_ptr.limit);
+  print_u64_nl("new gdt address=", desc_ptr.address);
 }

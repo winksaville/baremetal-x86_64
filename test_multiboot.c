@@ -15,6 +15,7 @@
  */
 
 #include "inttypes.h"
+#include "abort.h"
 #include "print.h"
 #include "test_multiboot.h"
 
@@ -40,6 +41,7 @@ multiboot_header_tag* print_tag(multiboot_header_tag *tag) {
     print_str("Something is wrong next == tag returning NULL");
     print_nl();
     next = NULL;
+    abort();
   }
   return (multiboot_header_tag*)next;
 }

@@ -15,6 +15,7 @@
  */
 
 #include "inttypes.h"
+#include "abort.h"
 #include "gdt.h"
 #include "regs_x86_64.h"
 #include "print.h"
@@ -22,33 +23,15 @@
 #include "test_multiboot.h"
 #include "test_interrupts.h"
 
-__attribute__ ((__noreturn__))
-void abort() {
-  // Abort by executing the x86 undefined instruction
-  while (1) {
-    __asm__ ("ud2");
-  }
+void test_print() {
+  print_int_nl("0: ", 0);
+  print_int_nl("1: ", 1);
+  print_int_nl("7F..FF: ", 0x7FFFFFFFFFFFFFFFLL);
+  print_int_nl("FF..FF: ", 0xFFFFFFFFFFFFFFFFLL);
+  print_int_nl("-1: ", -1);
 }
 
-
-// [Multiboot 1.6](http://nongnu.askapache.com/grub/phcoder/multiboot.pdf) info.
-// [OSDev.org Mulitboot2](http://wiki.osdev.org/Multiboot#Multiboot_2) info.
-//
-// The other critical information is what is the memory map at this point,
-// [see Philipp's](http://os.phil-opp.com/entering-longmode.html) post. He
-// initializes an identity mapping (1:1 physical to virtual) with one P4,
-// one P3 and one P2. With each P2 entry pointing to 2MB of physical data.
-// So the first 1G of physical RAM is mapped 1:1 with virtual memory.
-//
-// Previously he used 1GB pages but they are only supported in newer
-// cpu's so he's nowusing the 2MB pages.
-
-__attribute__ ((__noreturn__))
-void kmain(void* mb_info) {
-  test_multiboot(mb_info);
-
-  initialize_gdt();
-
+void test_registers() {
   print_u16_nl("ds=", read_ds());
   print_u16_nl("ss=", read_ss());
   print_u16_nl("es=", read_es());
@@ -63,19 +46,21 @@ void kmain(void* mb_info) {
   print_u16_nl("ss=", read_ss());
   print_u16_nl("es=", read_es());
   print_u16_nl("tr=", read_tr());
+}
 
-  descriptor_ptr desc_ptr;
-  store_gdtr(&desc_ptr);
-  print_uptr_nl("&desc_ptr=", &desc_ptr);
-  print_uptr_nl("&desc_ptr.limit", &desc_ptr.limit);
-  print_uptr_nl("&desc_ptr.address", &desc_ptr.address);
-  print_u16_nl("desc_ptr.limit=", desc_ptr.limit);
-  print_u64_nl("desc_ptr.address=", desc_ptr.address);
-  print_seg_desc("global code seg:", &desc_ptr.sd[1]);
-  print_seg_desc("global data seg:", &desc_ptr.sd[2]);
-  print_tss_ldt_desc("global tss:", (tss_ldt_desc*)&desc_ptr.sd[3]);
+__attribute__ ((__noreturn__))
+void kmain(void* mb_info) {
+  test_print();
+
+  test_multiboot(mb_info);
+
+  test_registers();
+
+  initialize_gdt();
 
   test_interrupts();
 
+  print_nl();
+  print_str_nl("SUCCESS");
   abort();
 }

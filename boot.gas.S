@@ -28,10 +28,6 @@ gdt64_data_entry:
   .set gdt64_data_seg, gdt64_data_entry - gdt64
   .quad (1<<44) | (1<<47) | (1<<41) // data segment
 
-tss64_entry:
-  .quad 0x0
-  .quad 0x0
-
 gdt64_pointer:
   .set gdt64_limit, gdt64_pointer - gdt64 - 1
   .word gdt64_limit

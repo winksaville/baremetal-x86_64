@@ -169,7 +169,7 @@ typedef struct tss_ldt_desc tss_ldt_desc;
 })
 
 /** Return the bits for tss_ldt_desc.base_addr_hi */
-#define TSS_LDT_DESC_SEG_BASE_ADDR_HI(addr) ({ \
+#define TSS_LDT_DESC_BASE_ADDR_HI(addr) ({ \
   u64 r = ((u64)(addr) >> 16) & 0xFFFFFFFFFFLL; \
   r; \
 })
@@ -308,5 +308,12 @@ void set_idtr(intr_trap_gate idt[], u32 count);
 
 void set_seg_desc(seg_desc* sd, u32 seg_limit, u64 base_addr, u8 type,
     u8 s, u8 dpl, u8 p, u8 avl, u8 l, u8 d_b, u8 g);
+
+i32 cmp_seg_desc(seg_desc* sd1, seg_desc* sd2);
+
+void set_tss_ldt_desc(tss_ldt_desc* tld, u32 seg_limit, u64 base_addr, u8 type,
+    u8 dpl, u8 p, u8 avl, u8 g);
+
+i32 cmp_tss_ldt_desc(tss_ldt_desc* sd1, tss_ldt_desc* sd2);
 
 #endif

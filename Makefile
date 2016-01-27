@@ -42,13 +42,14 @@ CFLAGS:=-m$(BITNESS) -std=c11 -ffreestanding -O2 -mno-red-zone -static -Wall -We
 
 OBJ_FILES:=mb2.o kmain.o gdt.o print.o interrupts.o descriptors_x86_64.o \
   descriptors_x86_64_print.o test_multiboot.o test_interrupts.o \
+  abort.o
 
 .PHONY: all
 all: kmain.elf kmain.gas.elf
 
 kmain.elf: boot.o $(OBJ_FILES) link.ld
 	$(LK) $(CFLAGS) -Wl,-n,-T,link.ld -o $@ boot.o $(OBJ_FILES) -lgcc
-	objdump -x -d -s -mi386 $@ > $@.txt
+	objdump -x -d -s $@ > $@.txt
 
 kmain.gas.elf: boot.gas.o $(OBJ_FILES) link.ld
 	$(LK) $(CFLAGS) -Wl,-n,-T,link.ld -o $@ boot.gas.o $(OBJ_FILES) -lgcc
@@ -71,7 +72,9 @@ boot.gas.o: boot.gas.S
 
 boot.o: boot.asm
 
-gdt.o: gdt.c inttypes.h descriptors_x86_64.h
+abort.o: abort.c abort.h
+
+gdt.o: gdt.c inttypes.h abort.h descriptors_x86_64.h
 
 print.o: print.c inttypes.h print.h
 
@@ -84,13 +87,13 @@ descriptors_x86_64.o: descriptors_x86_64.c \
 descriptors_x86_64_print.o: descriptors_x86_64.c \
   descriptors_x86_64_print.h descriptors_x86_64.h inttypes.h print.h
 
-test_multiboot.o: test_multiboot.c test_multiboot.h inttypes.h print.h
+test_multiboot.o: test_multiboot.c test_multiboot.h inttypes.h print.h abort.h
 
 test_interrupts.o: test_interrupts.c \
   descriptors_x86_64.h descriptors_x86_64_print.h inttypes.h \
-  test_interrupts.h print.h
+  test_interrupts.h print.h abort.h
 
-kmain.o: kmain.c inttypes.h gdt.h regs_x86_64.h descriptors_x86_64.h \
+kmain.o: kmain.c abort.h inttypes.h gdt.h regs_x86_64.h descriptors_x86_64.h \
   test_multiboot.h test_interrupts.h print.h
 
 iso.img: kmain.elf grub.cfg

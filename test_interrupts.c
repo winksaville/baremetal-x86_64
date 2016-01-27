@@ -15,6 +15,7 @@
  */
 
 #include "inttypes.h"
+#include "abort.h"
 #include "print.h"
 #include "regs_x86_64.h"
 #include "descriptors_x86_64.h"
@@ -26,12 +27,6 @@ void test_interrupts() {
     .limit = 0x1234,
     .address = 0x1234567812345678,
   };
-
-  print_int_nl("0: ", 0);
-  print_int_nl("1: ", 1);
-  print_int_nl("7F..FF: ", 0x7FFFFFFFFFFFFFFFLL);
-  print_int_nl("FF..FF: ", 0xFFFFFFFFFFFFFFFFLL);
-  print_int_nl("-1: ", -1);
 
   print_int_nl("sizeof(desc_ptr): ", sizeof(desc_ptr));
   print_u16_nl("desc_ptr.limit: ", desc_ptr.limit);
@@ -45,9 +40,11 @@ void test_interrupts() {
 
   if (idtr.limit != desc_ptr.limit) {
     print_str_nl("ERROR desc_ptr.limit != idtr.limit");
+    abort();
   }
   if (idtr.address != desc_ptr.address) {
     print_str_nl("ERROR desc_ptr.address != idtr.address");
+    abort();
   }
 
   descriptor_ptr gdtr;

@@ -36,6 +36,12 @@ _Static_assert(sizeof(global_descriptor_table) == 40,
 
 static global_descriptor_table gdt;
 
+/**
+ * Initialize GDT for a flat memory model.
+ *
+ * See "Intel 64 and IA-32 Architectures Software Developer's Manual"
+ * Volume 3 chapter 9.8.1 "Protected-Mode System Data Structures"
+ */
 void initialize_gdt() {
   // Print the current values
   descriptor_ptr desc_ptr;

@@ -40,16 +40,15 @@ LK=$(LK_FLAVOR)-elf-gcc
 # for now its assumed that there is no floating.
 CFLAGS:=-m$(BITNESS) -std=c11 -ffreestanding -O2 -mno-red-zone -static -Wall -Wextra -nostdlib -nostartfiles -nodefaultlibs
 
-OBJ_FILES:=mb2.o kmain.o gdt.o print.o interrupts.o descriptors_x86_64.o \
+OBJ_FILES:=mb2.o boot.o kmain.o gdt.o print.o interrupts.o descriptors_x86_64.o \
   descriptors_x86_64_print.o test_multiboot.o test_interrupts.o \
   abort.o
 
 .PHONY: all
 all: kmain.elf kmain.elf
 
-kmain.elf: boot.o $(OBJ_FILES) link.ld
-	$(LK) $(CFLAGS) -Wl,-n,-T,link.ld -o $@ boot.o $(OBJ_FILES) -lgcc
-	#objdump -x -d -s -mi386 $@ > $@.txt
+kmain.elf: $(OBJ_FILES) link.ld
+	$(LK) $(CFLAGS) -Wl,-n,-T,link.ld -o $@ $(OBJ_FILES) -lgcc
 	objdump -x -d -s $@ > $@.txt
 
 %.o: %.asm

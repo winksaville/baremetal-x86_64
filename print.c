@@ -17,32 +17,7 @@
 #include "inttypes.h"
 #include "print.h"
 
-// From [here](//http://www.lammertbies.nl/comm/info/RS-232_io.html)
-#define COM1_BASE 0x3F8
-#define COM2_BASE 0x2F8
-#define COM3_BASE 0x3E8
-#define COM4_BASE 0x2E8
-
-#define COM1_IRQ 4
-#define COM2_IRQ 3
-#define COM3_IRQ 4
-#define COM4_IRQ 3
-
-// and [here](http://www.lammertbies.nl/comm/info/serial-uart.html)
-#define RX_FIFO 0
-#define TX_FIFO 0
-
-#define COM_TX_FIFO ((short int)(COM1_BASE + TX_FIFO))
-
 static u8* u4_2_ascii = (u8*)"0123456789ABCDEF";
-
-static inline void outb(u16 port, u8 val) {
-    __asm volatile ( "outb %0, %1" : : "a"(val), "d"(port) );
-}
-
-void putchar(char ch) {
-  outb(COM_TX_FIFO, ch);
-}
 
 void print_nl() {
   putchar('\n');

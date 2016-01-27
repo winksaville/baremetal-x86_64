@@ -77,32 +77,6 @@ typedef struct intr_trap_gate intr_trap_gate;
 
 
 /**
- * Desctriptor Types for 64 bit IA32e
- *
- * See "Intel 64 and IA-32 Architectures Software Developer's Manual"
- * Volume 3 chapter 3.5 "Segment Descriptor Types"
- * Table 3-2. System-Segment and Gate-Descriptor Types
- */
-enum {
-  DT_64_UPPER =      0,
-  DT_64_RESV_1 =     1,
-  DT_64_LDT =        2,
-  DT_64_RESV_3 =     3,
-  DT_64_RESV_4 =     4,
-  DT_64_RESV_5 =     5,
-  DT_64_RESV_6 =     6,
-  DT_64_RESV_7 =     7,
-  DT_64_RESV_8 =     8,
-  DT_64_TSS_AVAIL =  9,
-  DT_64_RESV_10 =   10,
-  DT_64_TSS64_BUSY= 11,
-  DT_64_CALL_GATE = 12,
-  DT_64_RESV_13 =   13,
-  DT_64_INTR_GATE = 14,
-  DT_64_TRAP_GATE = 15,
-};
-
-/**
  * TSS and LDT Descriptor
  *
  * See "Intel 64 and IA-32 Architectures Software Developer's Manual"
@@ -257,6 +231,32 @@ typedef struct seg_desc seg_desc;
   u64 r = (u64)((((uptr)(desc).base_addr_hi) << 24) | (u64)((desc).base_addr_lo)); \
   r; \
 })
+
+/**
+ * System and Gate Desctriptor Types for 64 bit IA32e
+ *
+ * See "Intel 64 and IA-32 Architectures Software Developer's Manual"
+ * Volume 3 chapter 3.5 "Segment Descriptor Types"
+ * Table 3-2. System-Segment and Gate-Descriptor Types
+ */
+enum seg_type_sys_gate {
+  DT_64_UPPER =      0,
+  DT_64_RESV_1 =     1,
+  DT_64_LDT =        2,
+  DT_64_RESV_3 =     3,
+  DT_64_RESV_4 =     4,
+  DT_64_RESV_5 =     5,
+  DT_64_RESV_6 =     6,
+  DT_64_RESV_7 =     7,
+  DT_64_RESV_8 =     8,
+  DT_64_TSS_AVAIL =  9,
+  DT_64_RESV_10 =   10,
+  DT_64_TSS64_BUSY= 11,
+  DT_64_CALL_GATE = 12,
+  DT_64_RESV_13 =   13,
+  DT_64_INTR_GATE = 14,
+  DT_64_TRAP_GATE = 15,
+};
 
 /**
  * Code- and Data-Segment Descriptor Types

@@ -207,7 +207,7 @@ _Static_assert(sizeof(struct seg_desc) == 8,
 
 typedef struct seg_desc seg_desc;
 
-#define INITIALIZER_SEG_DESC { \
+#define ZERO_SEG_DESC { \
   .seg_limit_lo = 0, \
   .base_addr_lo = 0, \
   .type = 0, \
@@ -258,7 +258,41 @@ typedef struct seg_desc seg_desc;
   r; \
 })
 
-/* Pointer to Global Descriptor Table and Interrupt Descriptor Table */
+/**
+ * Code- and Data-Segment Descriptor Types
+ *
+ * See "Intel 64 and IA-32 Architectures Software Developer's Manual"
+ * Volume 3 chapter 3.4.5.1 "Segment Descriptors"
+ * Table 3-1. Code- and Data-Segment Types
+ */
+struct seg_type_code {
+  u8 a:1;       // accessed, set by hardware cleared by software
+  u8 r:1;       // readable
+  u8 c:1;       // conforming
+  u8 one:1;     // for code this bit is always one
+} __attribute__((__packed__));
+_Static_assert(sizeof(struct seg_type_code) == 1,
+    L"sizeof seg_type_code must be one byte");
+
+struct seg_type_data {
+  u8 a:1;       // accessed, set by hardware cleared by software
+  u8 w:1;       // write enable, 1 == read/write, 0 == read only
+  u8 e:1;       // expansion direction down == 1, up == 0
+  u8 zero:1;    // for data this bit is always zero
+} __attribute__((__packed__));
+_Static_assert(sizeof(struct seg_type_data) == 1,
+    L"sizeof seg_type_data must be one byte");
+
+union seg_type_u {
+    u8 byte;
+    struct seg_type_data data;
+    struct seg_type_code code;
+} __attribute__((__packed__));
+_Static_assert(sizeof(union seg_type_u) == 1, L"sizeof seg_type_u must be one byte");
+
+/**
+ * Pointer to Global Descriptor Table and Interrupt Descriptor Table
+ */
 struct descriptor_ptr {
     u16 unused[3];      // Align descriptor_ptr.limit to an odd u16 boundary
                         // so descriptor_ptr.address is on a u64 boundary.
@@ -308,6 +342,12 @@ void set_idtr(intr_trap_gate idt[], u32 count);
 
 void set_seg_desc(seg_desc* sd, u32 seg_limit, u64 base_addr, u8 type,
     u8 s, u8 dpl, u8 p, u8 avl, u8 l, u8 d_b, u8 g);
+
+void set_code_seg_desc(seg_desc* sd, u8 accessed, u8 readable, u8 conforming,
+    u8 dpl, u8 p, u8 avl, u8 l, u8 d, u8 g);
+
+void set_data_seg_desc(seg_desc* sd, u8 accessed, u8 write_enable, u8 expand_dir,
+    u8 dpl, u8 p, u8 avl, u8 l, u8 d, u8 g);
 
 i32 cmp_seg_desc(seg_desc* sd1, seg_desc* sd2);
 

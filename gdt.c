@@ -51,31 +51,40 @@ void initialize_gdt() {
   print_seg_desc("gdt[1] code seg:", &desc_ptr.sd[1]);
   print_seg_desc("gdt[2] data seg:", &desc_ptr.sd[2]);
 
-  // Initialize new gdt
+  /*
+   * Initialize new gdt
+   */
   print_uptr_nl("&gdt=", &gdt);
   print_int_nl("sizeof(global_descriptor_table)=",
       sizeof(global_descriptor_table));
 
+  // Zero the first entry.
   set_seg_desc(&gdt.zero, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+  print_seg_desc("gdt.zero:", &gdt.zero);
   if (cmp_seg_desc(&gdt.zero, &desc_ptr.sd[0]) != 0) {
     print_str_nl("gdt.zero != desc_ptr.sd[0]");
     abort();
   }
-  set_seg_desc(&gdt.code, 0, 0, 10, 1, 0, 1, 0, 1, 0, 0);
+
+  // Initialize the code segment
+  set_code_seg_desc(&gdt.code, 0, 1, 0, 0, 1, 0, 1, 0, 0);
+  print_seg_desc("gdt.code:", &gdt.code);
   if (cmp_seg_desc(&gdt.code, &desc_ptr.sd[1]) != 0) {
     print_str_nl("gdt.code != desc_ptr.sd[1]");
     abort();
   }
-  set_seg_desc(&gdt.data, 0, 0,  3, 1, 0, 1, 0, 0, 0, 0);
-  if (cmp_seg_desc(&gdt.data, &desc_ptr.sd[2]) != 0) {
-    print_str_nl("gdt.code != desc_ptr.sd[1]");
+
+  // Initialize the data segment
+  set_data_seg_desc(&gdt.data, 0, 1, 0, 0, 1, 0, 0, 0, 0);
+  print_seg_desc("gdt.data:", &gdt.data);
+  if (cmp_seg_desc(&gdt.data, &desc_ptr.sd[2]) == 0) {
+    print_str_nl(
+        "ERROR: gdt.data == desc_ptr.sd[2], accessed should be different");
     abort();
   }
-  set_tss_ldt_desc(&gdt.tss, 0, 0, 0, 0, 0, 0, 0);
 
-  print_seg_desc("gdt.zero:", &gdt.zero);
-  print_seg_desc("gdt.code:", &gdt.code);
-  print_seg_desc("gdt.data:", &gdt.data);
+  // Initialize the tss segment
+  set_tss_ldt_desc(&gdt.tss, 0, 0, 0, 0, 0, 0, 0);
   print_tss_ldt_desc("gdt.tss:", &gdt.tss);
 
   // Update to new gdt
@@ -85,4 +94,10 @@ void initialize_gdt() {
   store_gdtr(&desc_ptr);
   print_u16_nl("new gdt limit=", desc_ptr.limit);
   print_u64_nl("new gdt address=", desc_ptr.address);
+
+  if (cmp_seg_desc(&gdt.data, &desc_ptr.sd[2]) != 0) {
+    print_str_nl("ERROR: gdt.code != desc_ptr.sd[1]");
+    print_seg_desc("gdt.data:", &gdt.data);
+    abort();
+  }
 }

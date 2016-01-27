@@ -50,7 +50,7 @@ void set_idtr(intr_trap_gate idt[], u32 count) {
 
 void set_seg_desc(seg_desc* sd, u32 seg_limit, u64 base_addr, u8 type,
     u8 s, u8 dpl, u8 p, u8 avl, u8 l, u8 d_b, u8 g) {
-  seg_desc default_desc = INITIALIZER_SEG_DESC;
+  seg_desc default_desc = ZERO_SEG_DESC;
 
   *sd = default_desc;
   sd->seg_limit_lo = SEG_DESC_SEG_LIMIT_LO(seg_limit);
@@ -65,6 +65,28 @@ void set_seg_desc(seg_desc* sd, u32 seg_limit, u64 base_addr, u8 type,
   sd->l = l;
   sd->d_b = d_b;
   sd->g = g;
+}
+
+void set_code_seg_desc(seg_desc* sd, u8 accessed, u8 readable, u8 conforming,
+    u8 dpl, u8 p, u8 avl, u8 l, u8 d, u8 g) {
+    union seg_type_u type = {
+      .code = {
+        .a = accessed, .r = readable, .c = conforming, .one = 1
+      },
+  };
+
+  set_seg_desc(sd, 0, 0, type.byte, 1, dpl, p, avl, l, d, g);
+}
+
+void set_data_seg_desc(seg_desc* sd, u8 accessed, u8 write_enable, u8 expand_dir,
+    u8 dpl, u8 p, u8 avl, u8 l, u8 d, u8 g) {
+  union seg_type_u type = {
+      .data = {
+        .a = accessed, .w = write_enable, .e = expand_dir, .zero = 0
+      },
+  };
+
+  set_seg_desc(sd, 0, 0, type.byte, 1, dpl, p, avl, l, d, g);
 }
 
 /**

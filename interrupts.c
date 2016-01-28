@@ -25,27 +25,38 @@ static intr_trap_gate idt[256];
 
 __attribute__ ((__interrupt__, __used__))
 static void intr_undefined(struct intr_frame *frame) {
-  print_intr_frame("intr_undefined:", frame);
+  (void)frame;
+  putchar('I');
+ //print_intr_frame("intr_undefined:", frame);
 }
 
 __attribute__ ((__interrupt__, __used__))
 static void expt_undefined(struct intr_frame *frame, u64 error_code) {
-  print_intr_frame("expt_undefined:", frame);
-  print_u64_nl(" error_code=", error_code);
+  (void)frame;
+  (void) error_code;
+  putchar('E');
+  //print_intr_frame("expt_undefined:", frame);
+  //print_u64_nl(" error_code=", error_code);
 }
 
 __attribute__ ((__interrupt__, __used__))
 static void expt_invalid_opcode(struct intr_frame *frame, u64 error_code) {
-  print_intr_frame("expt_invalid_opcode:", frame);
-  print_u64_nl(" error_code=", error_code);
+  (void)frame;
+  (void) error_code;
+  putchar('O');
+  //print_intr_frame("expt_invalid_opcode:", frame);
+  //print_u64_nl(" error_code=", error_code);
 }
 
-void initialize_intr_trap_table() {
-  // Initialize TSS entry in GDT
-  descriptor_ptr desc_ptr;
-  store_gdtr(&desc_ptr);
+__attribute__ ((__interrupt__, __used__))
+static void intr_79(struct intr_frame *frame) {
+  (void)frame;
+  putchar('7');
+  //print_intr_frame("intr 79:", frame);
+}
 
-  
+
+void initialize_intr_trap_table() {
   // Initialize all of the entires to intr_undefined
   for (u64 idx = 0; idx < ARRAY_COUNT(idt); idx++) {
     set_intr_gate(&idt[idx], intr_undefined);
@@ -56,4 +67,10 @@ void initialize_intr_trap_table() {
 
   // set the idtr
   set_idtr(idt, ARRAY_COUNT(idt));
+
+  set_intr_gate(&idt[79], intr_79);
+  print_gate("idt[79]:", &idt[79]);
+  //print_str_nl("invoke intr(79)");
+  //intr(79);
+  //print_str_nl("done   intr(79)");
 }

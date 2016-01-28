@@ -43,6 +43,8 @@ void set_intr_handler(u32 intr_num, intr_handler ih);
 
 void set_expt_handler(u32 intr_num, expt_handler eh);
 
+intr_trap_gate* get_intr_trap_gate(u32 intr_num);
+
 void initialize_intr_trap_table();
 
 #endif

@@ -104,6 +104,22 @@ static __inline__ u16 read_es(void) {
   return es;
 }
 
+/** get stack pointer */
+static __inline__ u64 get_rsp(void) {
+  u64 sp;
+  __asm__ volatile("movq %%rsp, %0;" : "=r" (sp));
+  return sp;
+}
+
+/** get msr */
+static __inline__ u64 get_msr(u32 msr) {
+  u32 lo;
+  u32 hi;
+  __asm__ volatile("movl  %0, %%ecx\n" :: "g"(msr));
+  __asm__ volatile("rdmsr\n" : "=d"(hi), "=a"(lo));
+  return (u64)hi << 32 | (u64)lo;
+}
+
 /** int instruction */
 static __inline__ void intr(u8 num) {
   __asm__ volatile("int %0;" :: "i"(num));

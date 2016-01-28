@@ -34,4 +34,6 @@ void test_registers() {
   print_u16_nl("ss=", read_ss());
   print_u16_nl("es=", read_es());
   print_u16_nl("tr=", read_tr());
+  print_u64_nl("rsp=", get_rsp());
+  print_u64_nl("msr(0xC0000080)=", get_msr(0xC0000080));
 }

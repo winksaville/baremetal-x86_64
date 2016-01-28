@@ -22,53 +22,30 @@
 #include "interrupts.h"
 #include "descriptors_x86_64_print.h"
 
+static u64 intr_79_counter;
+
+__attribute__ ((__interrupt__))
+static void intr_79(struct intr_frame *frame) {
+  (void)frame;
+  intr_79_counter += 1;
+  print_intr_frame("intr 79:", frame);
+  print_u64_nl(" rsp: ", get_rsp());
+  print_int_nl(" intr_79_counter: ", intr_79_counter);
+}
+
 void test_interrupts() {
-  descriptor_ptr desc_ptr = {
-    .limit = 0x1234,
-    .address = 0x1234567812345678,
-  };
-
-  print_int_nl("sizeof(desc_ptr): ", sizeof(desc_ptr));
-  print_u16_nl("desc_ptr.limit: ", desc_ptr.limit);
-  print_u64_nl("desc_ptr.address: ", desc_ptr.address);
-  load_idtr(&desc_ptr);
-
+  // Displat the current idtr
   descriptor_ptr idtr;
-  store_idtr(&idtr);
-  print_u16_nl("idtr.limit: ", idtr.limit);
-  print_u64_nl("idtr.address: ", idtr.address);
-
-  if (idtr.limit != desc_ptr.limit) {
-    print_str_nl("ERROR desc_ptr.limit != idtr.limit");
-    abort();
-  }
-  if (idtr.address != desc_ptr.address) {
-    print_str_nl("ERROR desc_ptr.address != idtr.address");
-    abort();
-  }
-
-  descriptor_ptr gdtr;
-  store_gdtr(&gdtr);
-  print_u16_nl("gdtr.limit: ", gdtr.limit);
-  print_u64_nl("gdtr.address: ", gdtr.address);
-
-  uptr	offset = 0x1234567812345678;
-  intr_trap_gate gate = INITIALIZER_INTR_TRAP_GATE;
-  print_int_nl("sizeof(gate): ", sizeof(gate));
-  print_gate("gate default initialization:", &gate);
-
-  gate.offset_lo = GATE_OFFSET_LO(offset);
-  gate.segment = 0x1234;
-  gate.ist = 0x7;
-  gate.type = 0xF;
-  gate.dpl = 0x3;
-  gate.p = 0x1;
-  gate.offset_hi = GATE_OFFSET_HI(offset);
-  print_gate("gate specific initialization:", &gate);
-
-  initialize_intr_trap_table();
-  print_str_nl("idtr after initialization");
+  print_str_nl("idtr:");
   store_idtr(&idtr);
   print_u16_nl(" idtr.limit: ", idtr.limit);
   print_uptr_nl(" idtr.itg: ", idtr.itg);
+
+  // Test we can set an interrupt handler and invoke it
+  set_intr_handler(79, intr_79);
+  print_gate("idt[79]:", get_intr_trap_gate(79));
+  print_str_nl("invoke intr(79)");
+  intr_79_counter = 0;
+  intr(79);
+  print_str_nl("done   intr(79)");
 }

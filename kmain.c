@@ -26,31 +26,11 @@
 #include "test_interrupts.h"
 #include "interrupts.h"
 
-__attribute__ ((__interrupt__, __used__))
-static void intr_79(struct intr_frame *frame) {
-  (void)frame;
-  putchar('7');
-  //print_intr_frame("intr 79:", frame);
-}
-
 __attribute__ ((__noreturn__))
 void kmain(void* mb_info) {
-  (void)mb_info;
-  putchar('K');
-  putchar('\n');
-  putchar('\r');
+  initialize_gdt();
 
   initialize_intr_trap_table();
-
-  set_intr_handler(79, intr_79);
-  //print_gate("idt[79]:", &idt[79]);
-  //print_str_nl("invoke intr(79)");
-  //intr(79);
-  //print_str_nl("done   intr(79)");
-  putchar('\n');
-  putchar('\r');
-
-  initialize_gdt();
 
   test_print();
 

@@ -301,8 +301,8 @@ struct descriptor_ptr {
                         // paragraph of "Intel 64 and IA-32 Architectures
                         // Software Developer's Manual" Volume 3 chapter 3.5.1
                         // "Segment Descriptor Tables".
-    u16 limit;
-    union {
+    volatile u16 limit;
+    volatile union {    // Volatile so compiler stores the address in set_idtr.
       uptr address;
       intr_trap_gate* itg;
       seg_desc* sd;

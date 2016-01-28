@@ -46,8 +46,8 @@ void initialize_gdt() {
   // Print the current values
   descriptor_ptr desc_ptr;
   print_uptr_nl("&desc_ptr=", &desc_ptr);
-  print_uptr_nl("&desc_ptr.limit=", &desc_ptr.limit);
-  print_uptr_nl("&desc_ptr.address=", &desc_ptr.address);
+  print_uptr_nl("&desc_ptr.limit=", (void*)&desc_ptr.limit);
+  print_uptr_nl("&desc_ptr.address=", (void*)&desc_ptr.address);
 
   // Dump current gdt
   store_gdtr(&desc_ptr);

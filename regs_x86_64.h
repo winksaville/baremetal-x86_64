@@ -104,4 +104,9 @@ static __inline__ u16 read_es(void) {
   return es;
 }
 
+/** int instruction */
+static __inline__ void intr(u8 num) {
+  __asm__ volatile("int %0;" :: "i"(num));
+}
+
 #endif

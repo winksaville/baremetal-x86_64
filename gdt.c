@@ -26,13 +26,13 @@ struct global_descriptor_table {
   seg_desc zero;
   seg_desc code;
   seg_desc data;
-  tss_ldt_desc tss;
+  //tss_ldt_desc tss;
 } __attribute__((__packed__, __aligned__(8)));
 
 typedef struct global_descriptor_table global_descriptor_table;
 
-_Static_assert(sizeof(global_descriptor_table) == 40,
-    L"struct global_descriptor_table != 40");
+_Static_assert(sizeof(global_descriptor_table) == 24,
+    L"struct global_descriptor_table != 24");
 
 static global_descriptor_table gdt;
 
@@ -90,8 +90,8 @@ void initialize_gdt() {
   }
 
   // Initialize the tss segment
-  set_tss_ldt_desc(&gdt.tss, 0, 0, 0, 0, 0, 0, 0);
-  print_tss_ldt_desc("gdt.tss:", &gdt.tss);
+  //set_tss_ldt_desc(&gdt.tss, 0, 0, 0, 0, 0, 0, 0);
+  //print_tss_ldt_desc("gdt.tss:", &gdt.tss);
 
   // Update to new gdt
   desc_ptr.limit = sizeof(gdt) - 1;

@@ -17,6 +17,32 @@
 #ifndef INTERRUPTS_H
 #define INTERRUPTS_H
 
+#include "inttypes.h"
+#include "descriptors_x86_64.h"
+
+/**
+ * Interrupt stack frame
+ *
+ * This is the signature required for the compiler so
+ * intr_handler and expt_handler are can be marked with
+ * the __attribute__((__interrupt__))
+ */
+typedef struct intr_frame {
+  u64 ip;
+  u64 cs;
+  u64 flags;
+  u64 sp;
+  u64 ss;
+} intr_frame;
+
+typedef void (intr_handler)(struct intr_frame* frame);
+
+typedef void (expt_handler) (struct intr_frame* frame, u64 error_code);
+
+void set_intr_handler(u32 intr_num, intr_handler ih);
+
+void set_expt_handler(u32 intr_num, expt_handler eh);
+
 void initialize_intr_trap_table();
 
 #endif

@@ -16,6 +16,7 @@
 
 #include "inttypes.h"
 #include "print.h"
+#include "interrupts.h"
 #include "descriptors_x86_64.h"
 #include "descriptors_x86_64_print.h"
 

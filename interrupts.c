@@ -17,6 +17,7 @@
 #include "inttypes.h"
 #include "print.h"
 #include "regs_x86_64.h"
+#include "interrupts.h"
 #include "descriptors_x86_64.h"
 #include "descriptors_x86_64_print.h"
 
@@ -48,13 +49,51 @@ static void expt_invalid_opcode(struct intr_frame *frame, u64 error_code) {
   //print_u64_nl(" error_code=", error_code);
 }
 
-__attribute__ ((__interrupt__, __used__))
-static void intr_79(struct intr_frame *frame) {
-  (void)frame;
-  putchar('7');
-  //print_intr_frame("intr 79:", frame);
+static void set_intr_gate(intr_trap_gate* gate, intr_handler* ih) {
+  static intr_trap_gate g = INITIALIZER_INTR_TRAP_GATE;
+  *gate = g;
+
+  // Set other fields
+  gate->offset_lo = GATE_OFFSET_LO(ih);
+  gate->offset_hi = GATE_OFFSET_HI(ih);
+  gate->segment = 8; // Code Segment TI=0, RPL=0
+                     // FIXME: How to know where the Code Segement is
+  gate->ist = 0; // Modified legacy stack switching mode
+  gate->type = DT_64_INTR_GATE;
+  gate->dpl = 0;
+  gate->p = 1;
 }
 
+static void set_expt_gate(intr_trap_gate* gate, expt_handler* eh) {
+  static intr_trap_gate g = INITIALIZER_INTR_TRAP_GATE;
+  *gate = g;
+
+  // Set other fields
+  gate->offset_lo = GATE_OFFSET_LO(eh);
+  gate->offset_hi = GATE_OFFSET_HI(eh);
+  gate->segment = 8; // Code Segment TI=0, RPL=0
+                     // FIXME: How to know where the Code Segement is
+  gate->ist = 0; // Modified legacy stack switching mode
+  gate->type = DT_64_INTR_GATE;
+  gate->dpl = 0;
+  gate->p = 1;
+}
+
+static void set_idtr(intr_trap_gate idt[], u32 count) {
+  descriptor_ptr dp;
+  dp.limit = (u16)(((uptr)&idt[count] - (uptr)&idt[0] - 1)
+      & 0xFFFF);
+  dp.itg = &idt[0];
+  load_idtr(&dp);
+}
+
+void set_intr_handler(u32 intr_num, intr_handler ih) {
+  set_intr_gate(&idt[intr_num], ih);
+}
+
+void set_expt_handler(u32 intr_num, expt_handler eh) {
+  set_expt_gate(&idt[intr_num], eh);
+}
 
 void initialize_intr_trap_table() {
   // Initialize all of the entires to intr_undefined
@@ -67,10 +106,4 @@ void initialize_intr_trap_table() {
 
   // set the idtr
   set_idtr(idt, ARRAY_COUNT(idt));
-
-  set_intr_gate(&idt[79], intr_79);
-  print_gate("idt[79]:", &idt[79]);
-  //print_str_nl("invoke intr(79)");
-  //intr(79);
-  //print_str_nl("done   intr(79)");
 }

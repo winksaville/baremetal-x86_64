@@ -315,31 +315,6 @@ _Static_assert(sizeof(struct descriptor_ptr) == 16,
 /** Descriptor Pointer typedef */
 typedef struct descriptor_ptr descriptor_ptr;
 
-/**
- * Interrupt stack frame
- *
- * This is the signature required for the compiler so
- * intr_handler and expt_handler are can be marked with
- * the __attribute__((__interrupt__))
- */
-typedef struct intr_frame {
-  u64 ip;
-  u64 cs;
-  u64 flags;
-  u64 sp;
-  u64 ss;
-} intr_frame;
-
-typedef void (intr_handler)(struct intr_frame* frame);
-
-typedef void (expt_handler) (struct intr_frame* frame, u64 error_code);
-
-void set_intr_gate(intr_trap_gate* idt, intr_handler ih);
-
-void set_expt_gate(intr_trap_gate* idt, expt_handler eh);
-
-void set_idtr(intr_trap_gate idt[], u32 count);
-
 void set_seg_desc(seg_desc* sd, u32 seg_limit, u64 base_addr, u8 type,
     u8 s, u8 dpl, u8 p, u8 avl, u8 l, u8 d_b, u8 g);
 

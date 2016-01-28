@@ -17,6 +17,7 @@
 #include "inttypes.h"
 #include "print.h"
 #include "regs_x86_64.h"
+#include "interrupts.h"
 #include "descriptors_x86_64.h"
 #include "descriptors_x86_64_print.h"
 
@@ -48,14 +49,6 @@ void set_expt_gate(intr_trap_gate* gate, expt_handler* eh) {
   gate->type = DT_64_INTR_GATE;
   gate->dpl = 0;
   gate->p = 1;
-}
-
-void set_idtr(intr_trap_gate idt[], u32 count) {
-  descriptor_ptr dp;
-  dp.limit = (u16)(((uptr)&idt[count] - (uptr)&idt[0] - 1)
-      & 0xFFFF);
-  dp.itg = &idt[0];
-  load_idtr(&dp);
 }
 
 void set_seg_desc(seg_desc* sd, u32 seg_limit, u64 base_addr, u8 type,

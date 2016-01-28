@@ -50,7 +50,7 @@ all: kmain.elf kmain.elf
 
 kmain.elf: $(OBJ_FILES) link.ld
 	$(LK) $(CFLAGS) -Wl,-n,-T,link.ld -o $@ $(OBJ_FILES) -lgcc
-	#$(LK) $(CFLAGS) -Wl,-n,-T,link.ld -o $@ mb2.o boot.o kmain.o abort.o -lgcc
+	#$(LK) $(CFLAGS) -Wl,-n,-T,link.ld -o $@ mb2.o boot.o kmain.o interrupts.o descriptors_x86_64.o abort.o -lgcc
 	objdump -x -d -s $@ > $@.txt
 
 %.o: %.asm

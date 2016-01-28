@@ -18,6 +18,7 @@
 #define DESCRIPTORS_X86_64_PRINT_H
 
 #include "inttypes.h"
+#include "interrupts.h"
 #include "descriptors_x86_64.h"
 
 void print_intr_frame(char* str, intr_frame* frame);

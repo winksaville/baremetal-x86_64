@@ -21,23 +21,33 @@
 #include "descriptors_x86_64_print.h"
 
 void set_intr_gate(intr_trap_gate* gate, intr_handler* ih) {
-  intr_trap_gate g = INITIALIZER_INTR_TRAP_GATE;
+  static intr_trap_gate g = INITIALIZER_INTR_TRAP_GATE;
   *gate = g;
 
   // Set other fields
   gate->offset_lo = GATE_OFFSET_LO(ih);
   gate->offset_hi = GATE_OFFSET_HI(ih);
+  gate->segment = 8; // Code Segment TI=0, RPL=0
+                     // FIXME: How to know where the Code Segement is
+  gate->ist = 0; // Modified legacy stack switching mode
   gate->type = DT_64_INTR_GATE;
+  gate->dpl = 0;
+  gate->p = 1;
 }
 
 void set_expt_gate(intr_trap_gate* gate, expt_handler* eh) {
-  intr_trap_gate g = INITIALIZER_INTR_TRAP_GATE;
+  static intr_trap_gate g = INITIALIZER_INTR_TRAP_GATE;
   *gate = g;
 
   // Set other fields
   gate->offset_lo = GATE_OFFSET_LO(eh);
   gate->offset_hi = GATE_OFFSET_HI(eh);
+  gate->segment = 8; // Code Segment TI=0, RPL=0
+                     // FIXME: How to know where the Code Segement is
+  gate->ist = 0; // Modified legacy stack switching mode
   gate->type = DT_64_INTR_GATE;
+  gate->dpl = 0;
+  gate->p = 1;
 }
 
 void set_idtr(intr_trap_gate idt[], u32 count) {

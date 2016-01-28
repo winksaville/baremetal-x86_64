@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Wink Saville
+ * Copyright 2016 Wink Saville
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,31 +15,23 @@
  */
 
 #include "inttypes.h"
-#include "abort.h"
-#include "gdt.h"
 #include "regs_x86_64.h"
 #include "print.h"
-#include "descriptors_x86_64_print.h"
-#include "test_print.h"
 #include "test_registers.h"
-#include "test_multiboot.h"
-#include "test_interrupts.h"
 
-__attribute__ ((__noreturn__))
-void kmain(void* mb_info) {
-  (void)mb_info;
-  initialize_gdt();
+void test_registers() {
+  print_u16_nl("ds=", read_ds());
+  print_u16_nl("ss=", read_ss());
+  print_u16_nl("es=", read_es());
+  print_u16_nl("tr=", read_tr());
 
-  test_print();
+  write_ds(0x00);
+  write_ss(0x00);
+  write_es(0x00);
+  write_tr(0x00);
 
-  test_registers();
-
-  test_multiboot(mb_info);
-
-  test_interrupts();
-
-  print_nl();
-  print_str_nl("SUCCESS");
-
-  abort();
+  print_u16_nl("ds=", read_ds());
+  print_u16_nl("ss=", read_ss());
+  print_u16_nl("es=", read_es());
+  print_u16_nl("tr=", read_tr());
 }

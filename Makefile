@@ -42,6 +42,7 @@ CFLAGS:=-m$(BITNESS) -std=c11 -ffreestanding -O2 -mno-red-zone -static -Wall -We
 
 OBJ_FILES:=mb2.o boot.o kmain.o gdt.o print.o interrupts.o descriptors_x86_64.o \
   descriptors_x86_64_print.o test_multiboot.o test_interrupts.o \
+  test_print.o test_registers.o \
   abort.o
 
 .PHONY: all
@@ -49,6 +50,7 @@ all: kmain.elf kmain.elf
 
 kmain.elf: $(OBJ_FILES) link.ld
 	$(LK) $(CFLAGS) -Wl,-n,-T,link.ld -o $@ $(OBJ_FILES) -lgcc
+	#$(LK) $(CFLAGS) -Wl,-n,-T,link.ld -o $@ mb2.o boot.o kmain.o abort.o -lgcc
 	objdump -x -d -s $@ > $@.txt
 
 %.o: %.asm
@@ -85,6 +87,10 @@ test_multiboot.o: test_multiboot.c test_multiboot.h inttypes.h print.h abort.h
 test_interrupts.o: test_interrupts.c \
   descriptors_x86_64.h descriptors_x86_64_print.h inttypes.h \
   test_interrupts.h print.h abort.h
+
+test_print.o: test_print.c print.h
+
+test_registers.o: test_registers.c regs_x86_64.h print.h
 
 kmain.o: kmain.c abort.h inttypes.h gdt.h regs_x86_64.h descriptors_x86_64.h \
   test_multiboot.h test_interrupts.h print.h

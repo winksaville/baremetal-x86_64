@@ -14,8 +14,22 @@
  * limitations under the License.
  */
 
+#include "inttypes.h"
+#include "regs_x86_64.h"
+
 void abort() {
+  // [The easiest way to reset i386/x86_64 system]
+  // (http://www.pagetable.com/?p=140)
+  //  Initialize idt register to null then perform
+  //  an interrupt. This causes a triple fault and
+  //  resets the CPU.
+  descriptor_ptr dp = { .limit=0, .address=0 };
+  load_idtr(&dp);
+  intr(0);
+
+  // If for some reason the triple fault doesn't work, HANG
   while (1) {
-    __asm__ volatile("ud2");
+    cli();
+    hlt();
   }
 }

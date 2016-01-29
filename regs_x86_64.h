@@ -125,4 +125,24 @@ static __inline__ void intr(u8 num) {
   __asm__ volatile("int %0;" :: "i"(num));
 }
 
+/** int instruction */
+static __inline__ void iretq(void) {
+  __asm__ volatile("iretq");
+}
+
+/** hlt, halt instruction */
+static __inline void hlt(void) {
+  __asm__ volatile("hlt");
+}
+
+/** cli, disable interrupts */
+static __inline void cli(void) {
+  __asm__ volatile("cli");
+}
+
+/** sti, enable interrupts */
+static __inline void sti(void) {
+  __asm__ volatile("sti");
+}
+
 #endif

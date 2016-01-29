@@ -38,7 +38,11 @@ LK=$(LK_FLAVOR)-elf-gcc
 # [Eric Kidd](http://www.randomhacks.net/2015/11/11/bare-metal-rust-custom-target-kernel-space/)
 # Eric also notes that Floating Point registers must be preserved properly
 # for now its assumed that there is no floating.
-CFLAGS:=-m$(BITNESS) -std=c11 -ffreestanding -O2 -mno-red-zone -static -Wall -Wextra -nostdlib -nostartfiles -nodefaultlibs
+CFLAGS := -m$(BITNESS) -std=c11 -ffreestanding -O2 -mno-red-zone -static
+CFLAGS += -Wall -Wextra -nostdlib -nostartfiles -nodefaultlibs
+
+# No floating point
+CFLAGS += -mno-sse -mno-sse2 -mno-sse3 -mno-sse4 -mno-ssse3 -mno-mmx -mno-3dnow -mno-avx
 
 OBJ_FILES:=mb2.o boot.o kmain.o gdt.o print.o interrupts.o descriptors_x86_64.o \
   descriptors_x86_64_print.o test_multiboot.o test_interrupts.o \
